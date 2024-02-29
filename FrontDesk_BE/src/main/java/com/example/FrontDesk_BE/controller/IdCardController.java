@@ -32,10 +32,10 @@ public class IdCardController {
         return idCardService.getAll();
     }
 
-    @GetMapping("list")
+    /*@GetMapping("list")
     public List<IDCard> getIdCardList(Pageable pageable) {
         return idCardService.getAll();
-    }
+    }*/
 
     @PostMapping("/save")
     public ResponseEntity<String> saveForgotId(@RequestBody IdCardDto idCardDto){
