@@ -4,6 +4,7 @@ import com.example.FrontDesk_BE.constants.ApplicationConstants;
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.entity.IDCard;
 import com.example.FrontDesk_BE.repository.IdCardRepository;
+import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IdCardService {
     private final IdCardRepository idCardRepository;
+    private final TempIDCardRepository tempIDCardRepository;
 
     public IDCard getById(Long id) {
         IDCard idCard = idCardRepository.findById(id).orElseThrow();
@@ -35,7 +37,8 @@ public class IdCardService {
 
     public ResponseEntity<String> saveIdCard(IdCardDto idCardDto)
     {
-        try{
+
+       try{
             IDCard idCard= new IDCard();
             idCard.setEmpId(idCardDto.getEmpId());
             idCard.setEmpName(idCardDto.getEmpName());
@@ -44,7 +47,8 @@ public class IdCardService {
             idCard.setOutTime(idCardDto.getOutTime());
             idCard.setIssueDate(idCardDto.getIssueDate());
             idCard.setReturnDate(idCardDto.getReturnDate());
-//            idCard.setTempIdCard(idCardDto.getTempId());
+            idCard.setTempIdCard(idCardDto.getTempId());
+           /*idCard.setTempIdCard(tempIDCardRepository.findById(1L).get());*/
             idCard=idCardRepository.save(idCard);
             return ResponseEntity.ok("Success");
         }catch (Exception e){

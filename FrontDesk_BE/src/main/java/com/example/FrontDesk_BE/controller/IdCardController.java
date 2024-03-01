@@ -6,6 +6,7 @@ import com.example.FrontDesk_BE.entity.TempIDCard;
 import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import com.example.FrontDesk_BE.service.IdCardService;
 import com.example.FrontDesk_BE.service.TempIdCardService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,7 @@ public class IdCardController {
     }*/
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveForgotId(@RequestBody IdCardDto idCardDto){
+    public ResponseEntity<String> saveForgotId( @Valid @RequestBody IdCardDto idCardDto){
         return idCardService.saveIdCard(idCardDto);
     }
 

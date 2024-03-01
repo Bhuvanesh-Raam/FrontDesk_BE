@@ -20,22 +20,23 @@ public class TempIdCardService {
     private final TempIDCardRepository tempIDCardRepository;
     private final IdCardRepository idCardRepository;
     public List<TempIDCard> getActiveTempIdCard(){
-        return tempIDCardRepository.findAll(Sort.by("inUse"));
+        /*return tempIDCardRepository.findByInUseFalse();*/
+        return tempIDCardRepository.findAll();
     }
 
     public void assignTempIdCard(Long tempIdCardId, Long empId)
     {
-        TempIDCard tempIDCard=tempIDCardRepository.findById(tempIdCardId).orElseThrow();
-        if(!tempIDCard.getInUse())
+        TempIDCard tempId=tempIDCardRepository.findById(tempIdCardId).orElseThrow();
+        if(!tempId.getInUse())
         {
             Optional<IDCard> id= idCardRepository.findById(empId);
                 if(id.isPresent())
                 {
                     IDCard idCard=id.get();
-                    idCard.setTempIdCard(tempIDCard);
+                    idCard.setTempIdCard(tempId);
                     idCardRepository.save(idCard);
-                    tempIDCard.setInUse(true);
-                    tempIDCardRepository.save(tempIDCard);
+                    tempId.setInUse(true);
+                    tempIDCardRepository.save(tempId);
                 }
         }
     }
@@ -50,6 +51,7 @@ public class TempIdCardService {
             tempIDCard.setSezAccessCardNumber(tempIDCardDto.getSezAccessCardNumber());
             tempIDCard.setIdName(tempIDCardDto.getIdName());
             tempIDCard.setInUse(tempIDCardDto.getInUse());
+            tempIDCard=tempIDCardRepository.save(tempIDCard);
             return ResponseEntity.ok("Success");
         }catch (Exception e){
             return ResponseEntity.ok("Failure");

@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name="temp_id_card")
@@ -12,7 +14,7 @@ public class TempIDCard {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id",nullable = false)
+    @Column(name = "id")
     private Long id;
     @Column(name = "id_name")
     private String idName;
@@ -22,4 +24,5 @@ public class TempIDCard {
     private String sezAccessCardNumber;
     @Column(name="in_use")
     private Boolean inUse;
+
 }
