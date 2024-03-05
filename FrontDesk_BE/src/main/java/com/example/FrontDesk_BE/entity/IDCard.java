@@ -1,16 +1,13 @@
 package com.example.FrontDesk_BE.entity;
 
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.aspectj.bridge.IMessage;
-import org.hibernate.engine.internal.Cascade;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -61,5 +58,21 @@ public class IDCard {
     @ManyToOne(cascade = CascadeType.PERSIST)
 //    @NotBlank(message = "Temporary ID Card Number should not be blank")
     private TempIDCard tempIdCard;
+
+    @LastModifiedDate
+    @Column(name = "last_updated_date")
+    private LocalDateTime lastUpdatedDate;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="id",referencedColumnName = "id")
+    private IdSignature idSignature;
+
+    @Transient
+    private String receiverSign;
+    @Transient
+    private String issuerSign;
+    @Transient
+    private String imgCapture;
+
 
 }

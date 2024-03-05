@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TempIDCardRepository extends JpaRepository<TempIDCard,Long> {
-    List<TempIDCard> findByInUseFalse();
+    List<TempIDCard> findByInUseFalse(); //Query Creation
+
+    TempIDCard findFirstByInUseFalse(); //Query Creation
 }

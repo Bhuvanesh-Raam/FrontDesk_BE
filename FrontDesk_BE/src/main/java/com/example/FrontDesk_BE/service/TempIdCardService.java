@@ -24,7 +24,7 @@ public class TempIdCardService {
         return tempIDCardRepository.findAll();
     }
 
-    public void assignTempIdCard(Long tempIdCardId, Long empId)
+   /* public void assignTempIdCard(Long tempIdCardId, Long empId)
     {
         TempIDCard tempId=tempIDCardRepository.findById(tempIdCardId).orElseThrow();
         if(!tempId.getInUse())
@@ -39,7 +39,7 @@ public class TempIdCardService {
                     tempIDCardRepository.save(tempId);
                 }
         }
-    }
+    }*/
 
     public ResponseEntity<String> saveTempIdCard(TempIDCardDto tempIDCardDto)
     {

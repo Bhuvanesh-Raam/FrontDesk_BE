@@ -9,3 +9,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+zoho:
+  clientId: 1000.L6K1UKD41XF9N28QKFX3O8UA0KGWFN
+  clientSecret: 144429c45051a2c433bc1ae10f959db5372f373db9
+  refreshToken: 1000.4c3f3fe6fba9923d56d19e93cb8ebc6e.0837b64e6ec867b701308ffaf8876e1c
+
+  caching:
+    zohoOauthTokenTTL: 3400000
