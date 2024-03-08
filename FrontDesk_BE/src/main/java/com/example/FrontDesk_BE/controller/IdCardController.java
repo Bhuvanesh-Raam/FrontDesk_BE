@@ -1,8 +1,6 @@
 package com.example.FrontDesk_BE.controller;
 
 import com.example.FrontDesk_BE.dto.IdCardDto;
-import com.example.FrontDesk_BE.entity.IDCard;
-import com.example.FrontDesk_BE.entity.TempIDCard;
 import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import com.example.FrontDesk_BE.service.IdCardService;
 import com.example.FrontDesk_BE.service.TempIdCardService;
@@ -12,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 /*@Validated*/
@@ -36,8 +31,8 @@ public class IdCardController {
     }*/
 
     @GetMapping("list")
-    public Page<IDCard> getIdCardList(Pageable pageable) {
-        return idCardService.getIdCardList(pageable);
+    public Page<IdCardDto> getIdCardDtoList(Pageable pageable) {
+        return idCardService.getIdCardDtoList(pageable);
     }
 
     /*@GetMapping("list1")

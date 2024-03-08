@@ -31,7 +31,7 @@ public class IdCardDto {
     private String idIssuer;
     @NotNull(message = "Temporary ID should not be empty or blank")
     private Long tempId;
-    private String receiverSign;
+    private  String receiverSign;
     private String issuerSign;
     private String imgCapture;
 }

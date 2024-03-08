@@ -15,9 +15,15 @@ import org.hibernate.annotations.Type;
 @Table(name="id_signature")
 public class IdSignature {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
-    @Column(name="file_type")
-    private String fileType;
+    @Column(name="issuer_ft")
+    private String issuerFileType;
+    @Column(name="receiver_ft")
+    private String receiverFileType;
+    @Column(name="img_ft")
+    private String imgFileType;
     @Lob
     @Column(name="receiver_sign")
     private byte[] receiverSign;

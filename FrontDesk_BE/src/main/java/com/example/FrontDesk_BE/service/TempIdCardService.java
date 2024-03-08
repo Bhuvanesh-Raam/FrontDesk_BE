@@ -20,8 +20,8 @@ public class TempIdCardService {
     private final TempIDCardRepository tempIDCardRepository;
     private final IdCardRepository idCardRepository;
     public List<TempIDCard> getActiveTempIdCard(){
-        /*return tempIDCardRepository.findByInUseFalse();*/
-        return tempIDCardRepository.findAll();
+        return tempIDCardRepository.findByInUseFalse();
+        /*return tempIDCardRepository.findAll();*/
     }
 
    /* public void assignTempIdCard(Long tempIdCardId, Long empId)

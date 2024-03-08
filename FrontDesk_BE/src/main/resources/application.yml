@@ -7,7 +7,7 @@ spring:
     enabled: false
   jpa:
     hibernate:
-      ddl-auto: update
+       ddl-auto: update
     show-sql: true
 
 zoho:
