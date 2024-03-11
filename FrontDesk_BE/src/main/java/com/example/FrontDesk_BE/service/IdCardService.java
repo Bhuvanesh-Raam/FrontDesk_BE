@@ -3,10 +3,19 @@ package com.example.FrontDesk_BE.service;
 import com.example.FrontDesk_BE.constants.ApplicationConstants;
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.entity.IDCard;
-import com.example.FrontDesk_BE.entity.IdSignature;
+import com.example.FrontDesk_BE.entity.TempIDCard;
+import com.example.FrontDesk_BE.repository.IdCardSignatureRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.Optional;
+import com.example.FrontDesk_BE.entity.IdCardSignature;
 import com.example.FrontDesk_BE.entity.TempIDCard;
 import com.example.FrontDesk_BE.repository.IdCardRepository;
-import com.example.FrontDesk_BE.repository.IdCardSignRepository;
 import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
@@ -20,14 +29,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class IdCardService {
     private final IdCardRepository idCardRepository;
     private final TempIDCardRepository tempIDCardRepository;
-    private final IdCardSignRepository idCardSignRepository;
+    private final IdCardSignatureRepository idCardSignatureRepository;
 
     public Page<IDCard> getIdCardList(Pageable pageable) {
         if (pageable.getSort().isUnsorted()) {
@@ -53,49 +61,49 @@ public class IdCardService {
         idCardDto.setReturnDate(idCard.getReturnDate());
         idCardDto.setIdIssuer(idCard.getIdIssuer());
         idCardDto.setTempId(idCard.getTempIdCard().getId());
-        String issuerSignBase64=Base64.encodeBase64String(idCard.getIssuerSign());
-        String receiverSignBase64=Base64.encodeBase64String(idCard.getReceiverSign());
-        String imgCaptureBase64=Base64.encodeBase64String(idCard.getImgCapture());
-        idCardDto.setIssuerSign(idCard.getIssuerFileType()+","+issuerSignBase64);
-        idCardDto.setReceiverSign(idCard.getReceiverFileType()+","+receiverSignBase64);
-        idCardDto.setImgCapture(idCard.getImgFileType()+","+imgCaptureBase64);
+
+        String issuerSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
+        String receiverSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
+        String imgCaptureBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
+        idCardDto.setIssuerSign(idCard.getIdCardSignature().getIssuerFileType()+","+issuerSignBase64);
+        idCardDto.setReceiverSign(idCard.getIdCardSignature().getReceiverFileType()+","+receiverSignBase64);
+        idCardDto.setImgCapture(idCard.getIdCardSignature().getImgFileType()+","+imgCaptureBase64);
         return idCardDto;
     }
 
 
     public ResponseEntity<String> saveIdCard(IdCardDto idCardDto) {
         try {
-            IDCard idCard = new IDCard();
-            idCard.setEmpId(idCardDto.getEmpId());
-            idCard.setEmpName(idCardDto.getEmpName());
-            idCard.setIdIssuer(idCardDto.getIdIssuer());
-            idCard.setInTime(idCardDto.getInTime());
-            idCard.setOutTime(idCardDto.getOutTime());
-            idCard.setIssueDate(idCardDto.getIssueDate());
-            idCard.setReturnDate(idCardDto.getReturnDate());
-
-            // Check for TempID
-            if (idCardDto.getTempId() != null) {
+             if (idCardDto.getTempId() != null) {
                 Long tempId = idCardDto.getTempId();
-                Optional<TempIDCard> tempOptional = tempIDCardRepository.findById(tempId);
-                if (tempOptional.isPresent()) {
-                    TempIDCard tempIDCard = tempOptional.get();
-                    if (!tempIDCard.getInUse()) {
-                        // Set TempIDCard for IDCard entity
-                        idCard.setTempIdCard(tempIDCard);
-                        saveSignature(idCard,idCardDto);
-
-                        // Save IDCard entity
-                        idCard = idCardRepository.save(idCard);
-
-                        // Update TempIDCard
-                        tempIDCard.setInUse(true);
-                        tempIDCardRepository.save(tempIDCard);
-
-                        return ResponseEntity.ok("Success");
-                    } else {
-                        return ResponseEntity.ok("Failure: Temp ID Card is already in use");
-                    }
+                Optional<TempIDCard> tempOpt= tempIDCardRepository.findById(tempId);
+                if (tempOpt.isPresent()) {
+                    TempIDCard tempIDCard = tempOpt.get();
+                    IDCard idCard=new IDCard();
+                    idCard.setEmpId(idCardDto.getEmpId());
+                    idCard.setEmpName(idCardDto.getEmpName());
+                    idCard.setIdIssuer(idCardDto.getIdIssuer());
+                    idCard.setInTime(idCardDto.getInTime());
+                    idCard.setOutTime(idCardDto.getOutTime());
+                    idCard.setIssueDate(idCardDto.getIssueDate());
+                    idCard.setReturnDate(idCardDto.getReturnDate());
+                    idCard.setTempIdCard(tempIDCard);
+                    String [] receiverSignArray=idCardDto.getReceiverSign().split(","); //Get the IdcardDto Sign String and split
+                    String [] issuerSignArray=idCardDto.getIssuerSign().split(",");
+                    String [] imgCaptureArray=idCardDto.getImgCapture().split(",");
+                    IdCardSignature idCardSignature=new IdCardSignature();
+                    idCardSignature.setReceiverFileType(receiverSignArray[0]);
+                    idCardSignature.setIssuerFileType(issuerSignArray[0]);
+                    idCardSignature.setImgFileType(imgCaptureArray[0]);
+                    idCardSignature.setReceiverSign(Base64.decodeBase64(receiverSignArray[1]));
+                    idCardSignature.setIssuerSign(Base64.decodeBase64(issuerSignArray[1]));
+                    idCardSignature.setImgCapture(Base64.decodeBase64(imgCaptureArray[1]));
+                    idCardSignature.setIdCard(idCard);
+                    idCard = idCardRepository.save(idCard);
+                    idCardSignatureRepository.save(idCardSignature);
+                    tempIDCard.setInUse(true);
+                    tempIDCardRepository.save(tempIDCard);
+                    return ResponseEntity.ok("Success");
                 } else {
                     return ResponseEntity.ok("Failure: Temp ID Card not found");
                 }
@@ -103,7 +111,6 @@ public class IdCardService {
                 return ResponseEntity.ok("Failure: Temp ID Card not provided");
             }
         } catch (Exception e) {
-            // Log the exception for debugging
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
         }
@@ -111,18 +118,5 @@ public class IdCardService {
 
     public List<IDCard> getAll() {
         return idCardRepository.findAll();
-    }
-
-    private void saveSignature(IDCard idCard,IdCardDto idCardDto)
-    {
-        String [] receiverSignArray=idCardDto.getReceiverSign().split(",");
-        String [] issuerSignArray=idCardDto.getIssuerSign().split(",");
-        String [] imgCaptureArray=idCardDto.getImgCapture().split(",");
-        idCard.setReceiverFileType(receiverSignArray[0]);
-        idCard.setIssuerFileType(issuerSignArray[0]);
-        idCard.setImgFileType(imgCaptureArray[0]);
-        idCard.setReceiverSign(Base64.decodeBase64(receiverSignArray[1]));
-        idCard.setIssuerSign(Base64.decodeBase64(issuerSignArray[1]));
-        idCard.setImgCapture(Base64.decodeBase64(imgCaptureArray[1]));
     }
 }

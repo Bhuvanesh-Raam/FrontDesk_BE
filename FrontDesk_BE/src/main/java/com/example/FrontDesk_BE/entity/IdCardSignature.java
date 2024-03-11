@@ -2,18 +2,15 @@ package com.example.FrontDesk_BE.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 @Entity
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="id_signature")
-public class IdSignature {
+@Table(name="idCard_signature")
+public class IdCardSignature {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -33,4 +30,9 @@ public class IdSignature {
     @Lob
     @Column(name="img_capture")
     private byte[] imgCapture;
+
+    @OneToOne
+    @JoinColumn(name="idcard_id")
+    private IDCard idCard;
+
 }

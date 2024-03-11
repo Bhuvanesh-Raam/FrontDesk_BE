@@ -1,5 +1,6 @@
 package com.example.FrontDesk_BE.dto;
 
+/*import com.example.FrontDesk_BE.entity.IdSignature;*/
 import com.example.FrontDesk_BE.entity.TempIDCard;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Nonnull;
@@ -31,6 +32,7 @@ public class IdCardDto {
     private String idIssuer;
     @NotNull(message = "Temporary ID should not be empty or blank")
     private Long tempId;
+    /*private IdSignature idSignature;*/
     private  String receiverSign;
     private String issuerSign;
     private String imgCapture;

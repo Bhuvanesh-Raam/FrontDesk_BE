@@ -52,23 +52,7 @@ public class IDCard {
     @LastModifiedDate
     @Column(name = "last_updated_date")
     private LocalDateTime lastUpdatedDate;
-
-    @Column(name="receiver_ft")
-    private String receiverFileType;
-
-    @Column(name="issuer_ft")
-    private String issuerFileType;
-
-    @Column(name="img_ft")
-    private String imgFileType;
-    @Lob
-    @Column(name="receiver_Sign")
-    private byte[] receiverSign;
-    @Lob
-    @Column(name="issuer_Sign")
-    private byte[] issuerSign;
-    @Lob
-    @Column(name="imgCapture")
-    private byte[] imgCapture;
+    @OneToOne(mappedBy = "idCard",cascade = CascadeType.ALL)
+    private IdCardSignature idCardSignature;
 
 }
