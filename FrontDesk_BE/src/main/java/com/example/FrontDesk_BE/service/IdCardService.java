@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -225,7 +226,22 @@ public class IdCardService {
             return ResponseEntity.ok("IDCard not found, check the ID number");
         }
 
-
+    }
+    @Transactional
+    public List<IdCardDto> downloadCsv(LocalDate startDate, LocalDate endDate){
+        List<IDCard> idCards=idCardRepository.findAllByIssueDateBetween(startDate,endDate);
+        List<IdCardDto> IdCardList=new ArrayList<>();
+        for(IDCard idCard: idCards){
+            IdCardDto idCardDto=new IdCardDto();
+            idCardDto.setId(idCard.getId());
+            idCardDto.setEmpName(idCard.getEmpName());
+            idCardDto.setIdIssuer(idCard.getIdIssuer());
+            idCardDto.setIssueDate(idCard.getIssueDate());
+            idCardDto.setReturnDate(idCard.getReturnDate());
+            idCardDto.setTempIdName(idCard.getTempIdCard().getIdName());
+            IdCardList.add(idCardDto);
+        }
+        return IdCardList;
     }
 
 

@@ -11,6 +11,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface IdCardRepository extends JpaRepository<IDCard, Long> {
     Page<IDCard> findAll(Pageable pageable);
@@ -20,4 +23,6 @@ public interface IdCardRepository extends JpaRepository<IDCard, Long> {
     Page<IDCard> findByEmpNameContainingIgnoreCase(String searchParam, Pageable pageable);
     @Query("SELECT i FROM IDCard i WHERE CAST(i.empId AS STRING) LIKE   %:empIdPattern%")
     Page<IDCard> findByPartialEmpId(@Param("empIdPattern")String empIdPattern, Pageable pageable);
+
+    List<IDCard> findAllByIssueDateBetween(LocalDate startDate, LocalDate endDate);
 }
