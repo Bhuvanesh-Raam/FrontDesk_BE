@@ -9,4 +9,6 @@ public class ErrorMessages {
     public static final String ZOHO_SEARCH_SERVICE_FAILURE = "Failed Zoho Employee Search Service call";
     public static final String ZOHO_UNAUTHORIZED_ERROR = "Unauthorized error,Token Refresh Process invoked";
     public static final String ZOHO_SEARCH_SERVICE_ERROR = "Error Occured in Zoho Employee Search Service";
+
+    public static final String ID_CARD_INTERNAL_ERROR="Error occurred while saving ID Card";
 }

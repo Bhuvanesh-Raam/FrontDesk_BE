@@ -1,6 +1,7 @@
 package com.example.FrontDesk_BE.controller;
 
 import com.example.FrontDesk_BE.dto.IdCardDto;
+import com.example.FrontDesk_BE.entity.IDCard;
 import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import com.example.FrontDesk_BE.service.IdCardService;
 import com.example.FrontDesk_BE.service.TempIdCardService;
@@ -25,30 +26,40 @@ public class IdCardController {
     @Autowired
     private TempIdCardService tempIdCardService;
 
-    /*@GetMapping("all")
-    public List<IDCard> getAllIdCard(){
-        return idCardService.getAll();
-    }*/
 
     @GetMapping("list")
     public Page<IdCardDto> getIdCardDtoList(Pageable pageable) {
         return idCardService.getIdCardDtoList(pageable);
     }
 
-    /*@GetMapping("list1")
-    public List<IdCardDto> getIdCardList1() {
-        return idCardService.getIdCardList1();
-    }*/
+    @GetMapping("search/{id}")
+    public IdCardDto getIdCardDtoWithID(@PathVariable Long id)
+    {
+        return idCardService.getIdCard(id);
+    }
+
+    @GetMapping("filterByReturnStatus")
+    public Page<IdCardDto> filterByReturnStatus(Pageable pageable){
+        return idCardService.filterByReturnStatus(pageable);
+    }
+
+    @GetMapping("filterByIdOrName")
+    public Page<IdCardDto> filterByIdOrName(@RequestParam("searchParam") String searchParam, Pageable pageable)
+    {
+        return idCardService.filterByIDorName(searchParam,pageable);
+    }
+
     @PostMapping("/save")
     public ResponseEntity<String> saveForgotId( @Valid @RequestBody IdCardDto idCardDto){
         return idCardService.saveIdCard(idCardDto);
     }
 
-   /* @PostMapping("/issueTempIdCard")
-    public ResponseEntity<String> assignTempId(@RequestParam("tempIdCardId") Long tempIdCardId, @RequestParam("empId") Long empId){
-        tempIdCardService.assignTempIdCard(tempIdCardId,empId);
-        return ResponseEntity.ok("Temp Id Assigned successfully");
-    }*/
+    @PutMapping("return")
+    public ResponseEntity<String> updateIdCard(@RequestBody IdCardDto idCardDto)
+    {
+        return idCardService.returnIdCard(idCardDto);
+    }
+
 
 
 }

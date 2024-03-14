@@ -5,30 +5,23 @@ import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.entity.IDCard;
 import com.example.FrontDesk_BE.entity.TempIDCard;
 import com.example.FrontDesk_BE.repository.IdCardSignatureRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import com.example.FrontDesk_BE.entity.IdCardSignature;
-import com.example.FrontDesk_BE.entity.TempIDCard;
 import com.example.FrontDesk_BE.repository.IdCardRepository;
 import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,19 +30,54 @@ public class IdCardService {
     private final TempIDCardRepository tempIDCardRepository;
     private final IdCardSignatureRepository idCardSignatureRepository;
 
-    public Page<IDCard> getIdCardList(Pageable pageable) {
-        if (pageable.getSort().isUnsorted()) {
-            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, ApplicationConstants.LAST_UPDATED_DATE));
-        }
-        return idCardRepository.findAll(pageable);
+
+    public IdCardDto getIdCard(Long id){
+       Optional<IDCard> idCardOptional=idCardRepository.findById(id);
+       if(idCardOptional.isPresent()){
+            IDCard idCard=idCardOptional.get();
+            return convertToDto(idCard);
+       }
+       else
+       {
+           return null;// Handle exception here
+       }
     }
 
     public Page<IdCardDto> getIdCardDtoList(Pageable pageable){
         if (pageable.getSort().isUnsorted()) {
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, ApplicationConstants.LAST_UPDATED_DATE));
         }
-        return idCardRepository.findAll(pageable).map(this::convertToDto);
+        return idCardRepository.findAll(pageable).map(this::listDto);
     }
+
+    @Transactional
+    public Page<IdCardDto> filterByReturnStatus(Pageable pageable){
+        Page<IDCard> idCardPage=idCardRepository.findByReturnStatus(false,pageable);
+        List<IdCardDto> idCardDtoList=idCardPage.stream().map(this::listDto).collect(Collectors.toList());
+        return new PageImpl<>(idCardDtoList,pageable,idCardPage.getTotalElements());
+
+    }
+
+    @Transactional
+    public Page<IdCardDto> filterByIDorName(String searchParam,Pageable pageable)
+    {
+        Long empId=null;
+        Page<IDCard> idCardPage=null;
+        String searchString=searchParam.trim();
+        try{
+            empId=Long.parseLong(searchString);
+            String empIdPattern="%"+empId+"%";
+            idCardPage=idCardRepository.findByPartialEmpId(empIdPattern,pageable);
+        }
+        catch(NumberFormatException ex)
+        {
+            idCardPage=idCardRepository.findByEmpNameContainingIgnoreCase(searchParam,pageable);
+        }
+        List<IdCardDto> idCardDtoList=idCardPage.stream().map(this::listDto).collect(Collectors.toList());
+        return new PageImpl<>(idCardDtoList,pageable, idCardPage.getTotalElements());
+    }
+
+
     private IdCardDto convertToDto(IDCard idCard){
         IdCardDto idCardDto=new IdCardDto();
         idCardDto.setId(idCard.getId());
@@ -61,7 +89,7 @@ public class IdCardService {
         idCardDto.setReturnDate(idCard.getReturnDate());
         idCardDto.setIdIssuer(idCard.getIdIssuer());
         idCardDto.setTempId(idCard.getTempIdCard().getId());
-
+        idCardDto.setReturnStatus(idCard.getReturnStatus());
         String issuerSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
         String receiverSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
         String imgCaptureBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
@@ -70,7 +98,21 @@ public class IdCardService {
         idCardDto.setImgCapture(idCard.getIdCardSignature().getImgFileType()+","+imgCaptureBase64);
         return idCardDto;
     }
-
+    private IdCardDto listDto(IDCard idCard)
+    {
+        IdCardDto idCardDto=new IdCardDto();
+        idCardDto.setId(idCard.getId());
+        idCardDto.setIssueDate(idCard.getIssueDate());
+        idCardDto.setInTime(idCard.getInTime());
+        idCardDto.setEmpName(idCard.getEmpName());
+//        idCardDto.setEmpId(idCard.getEmpId());
+        idCardDto.setOutTime(idCard.getOutTime());
+        idCardDto.setReturnDate(idCard.getReturnDate());
+        idCardDto.setReturnStatus(idCard.getReturnStatus());
+//        idCardDto.setIdIssuer(idCard.getIdIssuer());
+        idCardDto.setTempIdName(idCard.getTempIdCard().getIdName());
+        return idCardDto;
+    }
 
     public ResponseEntity<String> saveIdCard(IdCardDto idCardDto) {
         try {
@@ -84,9 +126,10 @@ public class IdCardService {
                     idCard.setEmpName(idCardDto.getEmpName());
                     idCard.setIdIssuer(idCardDto.getIdIssuer());
                     idCard.setInTime(idCardDto.getInTime());
-                    idCard.setOutTime(idCardDto.getOutTime());
+                    /*idCard.setOutTime(idCardDto.getOutTime());*/
                     idCard.setIssueDate(idCardDto.getIssueDate());
-                    idCard.setReturnDate(idCardDto.getReturnDate());
+                    /*idCard.setReturnDate(idCardDto.getReturnDate());*/
+                    idCard.setReturnStatus(false);
                     idCard.setTempIdCard(tempIDCard);
                     String [] receiverSignArray=idCardDto.getReceiverSign().split(","); //Get the IdcardDto Sign String and split
                     String [] issuerSignArray=idCardDto.getIssuerSign().split(",");
@@ -112,11 +155,42 @@ public class IdCardService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
         }
     }
 
-    public List<IDCard> getAll() {
-        return idCardRepository.findAll();
+    public ResponseEntity<String>returnIdCard(IdCardDto idCardDto)
+    {
+        Long id=idCardDto.getId();
+        LocalDate returnDate=idCardDto.getReturnDate();
+        LocalTime outTime=idCardDto.getOutTime();
+        if (returnDate == null || outTime == null) {
+            return ResponseEntity.badRequest().body("Return date and Out time must not be null.");
+        }
+
+        Optional<IDCard> optIdCard=idCardRepository.findById(id);
+        if(optIdCard.isPresent()){
+            IDCard idCard=optIdCard.get();
+            idCard.setReturnDate(idCardDto.getReturnDate());
+            idCard.setOutTime(idCardDto.getOutTime());
+            idCard.setReturnStatus(true);
+            TempIDCard tempIDCard= idCard.getTempIdCard();
+            tempIDCard.setInUse(false);
+            tempIDCardRepository.save(tempIDCard);
+            idCardRepository.save(idCard);
+
+            return ResponseEntity.ok("Success");
+        }
+        else
+        {
+            return ResponseEntity.ok("Failure");
+        }
     }
+
+    /*public ResponseEntity<String> editIdcard(IdCardDto idCardDto)
+    {
+
+    }*/
+
+
 }

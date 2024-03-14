@@ -55,4 +55,7 @@ public class IDCard {
     @OneToOne(mappedBy = "idCard",cascade = CascadeType.ALL)
     private IdCardSignature idCardSignature;
 
+    @Column(name="returnStatus",nullable = false)
+    private Boolean returnStatus;
+
 }
