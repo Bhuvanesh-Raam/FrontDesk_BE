@@ -5,6 +5,7 @@ import com.example.FrontDesk_BE.entity.IDCard;
 import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import com.example.FrontDesk_BE.service.IdCardService;
 import com.example.FrontDesk_BE.service.TempIdCardService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
+import java.util.List;
 
 @RestController
 /*@Validated*/
@@ -48,6 +52,15 @@ public class IdCardController {
     {
         return idCardService.filterByIDorName(searchParam,pageable);
     }
+
+    /*@GetMapping("exportData")
+    public void downloadCsv(@RequestParam("startDate")String startDate, @RequestParam("endDate")String endDate, HttpServletResponse response)
+    {
+        File exportFile= new File("exportData.csv");
+        try{
+            List<IdCardDto> idCardDtoList=idCardService.downloadCsv
+        }
+    }*/
 
     @PostMapping("/save")
     public ResponseEntity<String> saveForgotId( @Valid @RequestBody IdCardDto idCardDto){

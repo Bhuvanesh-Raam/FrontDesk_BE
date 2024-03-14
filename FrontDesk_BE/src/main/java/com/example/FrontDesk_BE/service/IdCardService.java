@@ -89,9 +89,10 @@ public class IdCardService {
         idCardDto.setReturnDate(idCard.getReturnDate());
         idCardDto.setIdIssuer(idCard.getIdIssuer());
         idCardDto.setTempId(idCard.getTempIdCard().getId());
+        idCardDto.setTempIdName(idCard.getTempIdCard().getIdName());
         idCardDto.setReturnStatus(idCard.getReturnStatus());
-        String issuerSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
-        String receiverSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
+        String issuerSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getIssuerSign());
+        String receiverSignBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getReceiverSign());
         String imgCaptureBase64=Base64.encodeBase64String(idCard.getIdCardSignature().getImgCapture());
         idCardDto.setIssuerSign(idCard.getIdCardSignature().getIssuerFileType()+","+issuerSignBase64);
         idCardDto.setReceiverSign(idCard.getIdCardSignature().getReceiverFileType()+","+receiverSignBase64);
@@ -196,7 +197,7 @@ public class IdCardService {
 
         if(id==null || issueDate==null || inTime==null || tempId==null)
         {
-            return ResponseEntity.badRequest().body("Id No, Issue Date,In Time and Temporary IDCard should not be left as empty.");
+            return ResponseEntity.badRequest().body("IDCard-Number, Issue-Date, In-Time & Temp-Card should not be left as empty.");
         }
         Optional<IDCard> optIdCard=idCardRepository.findById(id);
         if(optIdCard.isPresent()){
