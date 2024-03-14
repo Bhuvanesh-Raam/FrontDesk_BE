@@ -165,7 +165,7 @@ public class IdCardService {
         LocalDate returnDate=idCardDto.getReturnDate();
         LocalTime outTime=idCardDto.getOutTime();
         if (returnDate == null || outTime == null) {
-            return ResponseEntity.badRequest().body("Return date and Out time must not be null.");
+            return ResponseEntity.badRequest().body("Return date and Out time must not be empty.");
         }
 
         Optional<IDCard> optIdCard=idCardRepository.findById(id);
@@ -187,10 +187,45 @@ public class IdCardService {
         }
     }
 
-    /*public ResponseEntity<String> editIdcard(IdCardDto idCardDto)
+    public ResponseEntity<String> editIdCard(IdCardDto idCardDto)
     {
+        Long id=idCardDto.getId();
+        LocalDate issueDate=idCardDto.getIssueDate();
+        LocalTime inTime=idCardDto.getInTime();
+        Long tempId=idCardDto.getTempId();
 
-    }*/
+        if(id==null || issueDate==null || inTime==null || tempId==null)
+        {
+            return ResponseEntity.badRequest().body("Id No, Issue Date,In Time and Temporary IDCard should not be left as empty.");
+        }
+        Optional<IDCard> optIdCard=idCardRepository.findById(id);
+        if(optIdCard.isPresent()){
+            IDCard idCard=optIdCard.get();
+            idCard.setIssueDate(idCardDto.getIssueDate());
+            idCard.setInTime(idCardDto.getInTime());
+            TempIDCard tempIDCard= idCard.getTempIdCard();
+            tempIDCard.setInUse(false);
+            Optional<TempIDCard> temp= tempIDCardRepository.findById(tempId);
+            if(temp.isPresent())
+            {
+                TempIDCard tempCard=temp.get();
+                idCard.setTempIdCard(tempCard);
+                tempCard.setInUse(true);
+                idCardRepository.save(idCard);
+                tempIDCardRepository.save(tempIDCard);
+                return ResponseEntity.ok("Success");
+            }
+            else{
+                return ResponseEntity.ok("Failure Temp Id not found");
+            }
+        }
+        else
+        {
+            return ResponseEntity.ok("IDCard not found, check the ID number");
+        }
+
+
+    }
 
 
 }

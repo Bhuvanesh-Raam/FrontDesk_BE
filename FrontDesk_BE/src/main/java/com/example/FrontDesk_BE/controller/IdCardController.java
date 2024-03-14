@@ -54,6 +54,12 @@ public class IdCardController {
         return idCardService.saveIdCard(idCardDto);
     }
 
+    @PostMapping("edit")
+    public ResponseEntity<String> editIdCard(@RequestBody IdCardDto idCardDto)
+    {
+        return idCardService.editIdCard(idCardDto);
+    }
+
     @PutMapping("return")
     public ResponseEntity<String> updateIdCard(@RequestBody IdCardDto idCardDto)
     {
