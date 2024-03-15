@@ -4,6 +4,7 @@ import com.example.FrontDesk_BE.constants.ApplicationConstants;
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.entity.IDCard;
 import com.example.FrontDesk_BE.entity.TempIDCard;
+import com.example.FrontDesk_BE.model.excelModel;
 import com.example.FrontDesk_BE.repository.IdCardSignatureRepository;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -228,20 +229,20 @@ public class IdCardService {
 
     }
     @Transactional
-    public List<IdCardDto> downloadCsv(LocalDate startDate, LocalDate endDate){
+    public List<excelModel> getDataForExcel(LocalDate startDate, LocalDate endDate){
         List<IDCard> idCards=idCardRepository.findAllByIssueDateBetween(startDate,endDate);
-        List<IdCardDto> IdCardList=new ArrayList<>();
+        List<excelModel> excelModelList=new ArrayList<>();
         for(IDCard idCard: idCards){
-            IdCardDto idCardDto=new IdCardDto();
-            idCardDto.setId(idCard.getId());
-            idCardDto.setEmpName(idCard.getEmpName());
-            idCardDto.setIdIssuer(idCard.getIdIssuer());
-            idCardDto.setIssueDate(idCard.getIssueDate());
-            idCardDto.setReturnDate(idCard.getReturnDate());
-            idCardDto.setTempIdName(idCard.getTempIdCard().getIdName());
-            IdCardList.add(idCardDto);
+            excelModel model=new excelModel();
+            model.setId(idCard.getId());
+            model.setEmpName(idCard.getEmpName());
+            model.setIdIssuer(idCard.getIdIssuer());
+            model.setIssueDate(idCard.getIssueDate());
+            model.setReturnDate(idCard.getReturnDate());
+            model.setTempIdName(idCard.getTempIdCard().getIdName());
+            excelModelList.add(model);
         }
-        return IdCardList;
+        return excelModelList;
     }
 
 
