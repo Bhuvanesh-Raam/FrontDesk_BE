@@ -40,10 +40,23 @@ public class IdCardController {
     @Autowired
     private TempIdCardService tempIdCardService;
 
+    @Autowired
+    private ExcelExportService excelExportService;
 
     @GetMapping("list")
-    public Page<IdCardDto> getIdCardDtoList(Pageable pageable) {
-        return idCardService.getIdCardDtoList(pageable);
+    public Page<IdCardDto> getIdCardDtoList( @RequestParam(value = "searchParam",required = false) String searchParam, @RequestParam(value = "returnStatus",required = false) Boolean returnStatus, Pageable pageable) {
+        Boolean returnStatusParam=returnStatus!=null?Boolean.valueOf(returnStatus):null;
+        if(searchParam!=null && returnStatusParam!=null)
+        {
+            return idCardService.filterByIDorNameAndReturnStatus(searchParam,returnStatusParam,pageable);
+        } else if (searchParam!=null) {
+            return idCardService.filterByIDorName(searchParam,pageable);
+        } else if (returnStatus!=null) {
+            return idCardService.filterByReturnStatus(returnStatus,pageable);
+        }
+        else{
+            return idCardService.getIdCardDtoList(pageable);
+        }
     }
 
     @GetMapping("search/{id}")
@@ -52,7 +65,7 @@ public class IdCardController {
         return idCardService.getIdCard(id);
     }
 
-    @GetMapping("filterByReturnStatus")
+   /* @GetMapping("filterByReturnStatus")
     public Page<IdCardDto> filterByReturnStatus(Pageable pageable){
         return idCardService.filterByReturnStatus(pageable);
     }
@@ -61,6 +74,12 @@ public class IdCardController {
     public Page<IdCardDto> filterByIdOrName(@RequestParam("searchParam") String searchParam, Pageable pageable)
     {
         return idCardService.filterByIDorName(searchParam,pageable);
+    }*/
+
+    @GetMapping("filterByDate")
+    public Page<IdCardDto> filterByDate(@RequestParam("startDate") LocalDate startDate,@RequestParam("endDate")LocalDate endDate,Pageable pageable)
+    {
+        return idCardService.filterByDate(startDate,endDate,pageable);
     }
 
     @GetMapping("exportdata")
@@ -68,7 +87,7 @@ public class IdCardController {
     {
         List<excelModel> data=idCardService.getDataForExcel(startDate,endDate);
         String filePath="exportData.xlsx";
-        Workbook workBook=ExcelExportService.exportToExcel(data,filePath);
+        Workbook workBook=excelExportService.exportToExcel(data,filePath);
         try{
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition","attachment; filename=exportData.xlsx");

@@ -25,4 +25,10 @@ public interface IdCardRepository extends JpaRepository<IDCard, Long> {
     Page<IDCard> findByPartialEmpId(@Param("empIdPattern")String empIdPattern, Pageable pageable);
 
     List<IDCard> findAllByIssueDateBetween(LocalDate startDate, LocalDate endDate);
+
+    Page<IDCard> findAllByIssueDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    @Query("SELECT i FROM IDCard i WHERE CAST(i.empId AS STRING) LIKE   %:empIdPattern% AND i.returnStatus=:returnStatus")
+    Page<IDCard> findByPartialEmpIdAndReturnStatus(String empIdPattern, Boolean returnStatus, Pageable pageable);
+
+    Page<IDCard> findByEmpNameContainingIgnoreCaseAndReturnStatus(String searchParam, Boolean returnStatus,Pageable pageable);
 }

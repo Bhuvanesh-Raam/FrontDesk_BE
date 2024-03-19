@@ -46,18 +46,45 @@ public class IdCardService {
     }
 
     public Page<IdCardDto> getIdCardDtoList(Pageable pageable){
+        Sort.Order returnStatusOrder=Sort.Order.desc("returnStatus");
+        Sort.Order lastUpdatedOrder=Sort.Order.asc("lastUpdatedDate");
         if (pageable.getSort().isUnsorted()) {
-            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, ApplicationConstants.LAST_UPDATED_DATE));
+            Sort customSort= Sort.by(returnStatusOrder,lastUpdatedOrder);
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), customSort);
         }
         return idCardRepository.findAll(pageable).map(this::listDto);
     }
+    @Transactional
+    public Page<IdCardDto> filterByIDorNameAndReturnStatus(String searchParam, Boolean returnStatus,Pageable pageable){
+        Long empId=null;
+        Page<IDCard> idCardPage=null;
+        String searchString=searchParam.trim();
+        try{
+            empId=Long.parseLong(searchString);
+            String empIdPattern="%"+empId+"%";
+            idCardPage=idCardRepository.findByPartialEmpIdAndReturnStatus(empIdPattern,returnStatus,pageable);
+        }
+        catch(NumberFormatException ex)
+        {
+            idCardPage=idCardRepository.findByEmpNameContainingIgnoreCaseAndReturnStatus(searchParam,returnStatus,pageable);
+        }
+        List<IdCardDto> idCardDtoList=idCardPage.stream().map(this::listDto).collect(Collectors.toList());
+        return new PageImpl<>(idCardDtoList,pageable,idCardPage.getTotalElements());
+    }
 
     @Transactional
-    public Page<IdCardDto> filterByReturnStatus(Pageable pageable){
-        Page<IDCard> idCardPage=idCardRepository.findByReturnStatus(false,pageable);
+    public Page<IdCardDto> filterByReturnStatus(Boolean returnStatus,Pageable pageable){
+        Page<IDCard> idCardPage=idCardRepository.findByReturnStatus(returnStatus,pageable);
         List<IdCardDto> idCardDtoList=idCardPage.stream().map(this::listDto).collect(Collectors.toList());
         return new PageImpl<>(idCardDtoList,pageable,idCardPage.getTotalElements());
 
+    }
+
+    @Transactional
+    public Page<IdCardDto> filterByDate(LocalDate startDate, LocalDate endDate,Pageable pageable){
+        Page<IDCard> idCardPage=idCardRepository.findAllByIssueDateBetween(startDate,endDate,pageable);
+        List<IdCardDto> idCardDtoList=idCardPage.stream().map(this::listDto).collect(Collectors.toList());
+        return new PageImpl<>(idCardDtoList,pageable,idCardPage.getTotalElements());
     }
 
     @Transactional
@@ -117,6 +144,7 @@ public class IdCardService {
         return idCardDto;
     }
 
+    @Transactional
     public ResponseEntity<String> saveIdCard(IdCardDto idCardDto) {
         try {
              if (idCardDto.getTempId() != null) {

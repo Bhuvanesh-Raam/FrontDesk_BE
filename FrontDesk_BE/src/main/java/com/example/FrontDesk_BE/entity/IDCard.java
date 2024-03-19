@@ -5,13 +5,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
-
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name="id_card")
 @NoArgsConstructor
 public class IDCard {
@@ -49,9 +50,10 @@ public class IDCard {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private TempIDCard tempIdCard;
 
-    @LastModifiedDate
     @Column(name = "last_updated_date")
+    @LastModifiedDate
     private LocalDateTime lastUpdatedDate;
+
     @OneToOne(mappedBy = "idCard",cascade = CascadeType.ALL)
     private IdCardSignature idCardSignature;
 

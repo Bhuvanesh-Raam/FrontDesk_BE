@@ -1,17 +1,20 @@
 package com.example.FrontDesk_BE.service;
 
 import com.example.FrontDesk_BE.model.excelModel;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+@Service
+@RequiredArgsConstructor
 public class ExcelExportService {
-    public static Workbook exportToExcel(List<excelModel> data, String filePath){
+    public Workbook exportToExcel(List<excelModel> data, String filePath){
         Workbook workbook=new XSSFWorkbook();
         try{
             Sheet sheet=workbook.createSheet("Data");
