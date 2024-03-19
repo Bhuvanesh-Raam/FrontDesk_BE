@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -15,4 +16,7 @@ public class excelModel {
     private LocalDate returnDate;
     private String idIssuer;
     private String tempIdName;
+    private String displayId;
+    private LocalTime inTime;
+    private LocalTime outTime;
 }

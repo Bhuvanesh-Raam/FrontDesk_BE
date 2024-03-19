@@ -110,6 +110,7 @@ public class IdCardService {
     private IdCardDto convertToDto(IDCard idCard){
         IdCardDto idCardDto=new IdCardDto();
         idCardDto.setId(idCard.getId());
+        idCardDto.setDisplayId(ApplicationConstants.ID_CARD_ID+idCard.getId());
         idCardDto.setIssueDate(idCard.getIssueDate());
         idCardDto.setInTime(idCard.getInTime());
         idCardDto.setEmpName(idCard.getEmpName());
@@ -132,6 +133,7 @@ public class IdCardService {
     {
         IdCardDto idCardDto=new IdCardDto();
         idCardDto.setId(idCard.getId());
+        idCardDto.setDisplayId(ApplicationConstants.ID_CARD_ID+idCard.getId());
         idCardDto.setIssueDate(idCard.getIssueDate());
         idCardDto.setInTime(idCard.getInTime());
         idCardDto.setEmpName(idCard.getEmpName());
@@ -139,6 +141,7 @@ public class IdCardService {
         idCardDto.setOutTime(idCard.getOutTime());
         idCardDto.setReturnDate(idCard.getReturnDate());
         idCardDto.setReturnStatus(idCard.getReturnStatus());
+        idCardDto.setLastUpdatedDate(idCard.getLastUpdatedDate());
 //        idCardDto.setIdIssuer(idCard.getIdIssuer());
         idCardDto.setTempIdName(idCard.getTempIdCard().getIdName());
         return idCardDto;
@@ -262,11 +265,13 @@ public class IdCardService {
         List<excelModel> excelModelList=new ArrayList<>();
         for(IDCard idCard: idCards){
             excelModel model=new excelModel();
-            model.setId(idCard.getId());
+            model.setDisplayId(ApplicationConstants.ID_CARD_ID+idCard.getId());
             model.setEmpName(idCard.getEmpName());
             model.setIdIssuer(idCard.getIdIssuer());
             model.setIssueDate(idCard.getIssueDate());
             model.setReturnDate(idCard.getReturnDate());
+            model.setInTime(idCard.getInTime());
+            model.setOutTime(idCard.getOutTime());
             model.setTempIdName(idCard.getTempIdCard().getIdName());
             excelModelList.add(model);
         }

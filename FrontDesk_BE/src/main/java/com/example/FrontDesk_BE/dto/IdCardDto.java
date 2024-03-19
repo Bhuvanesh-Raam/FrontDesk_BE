@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 @Data
 @AllArgsConstructor
@@ -37,5 +38,7 @@ public class IdCardDto {
     private String issuerSign;
     private String imgCapture;
     private Boolean returnStatus;
+    private String DisplayId;
+    private LocalDateTime lastUpdatedDate;
 
 }

@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
-public class ExcelExportService {
+public class IdCardExcelExportService {
     public Workbook exportToExcel(List<excelModel> data, String filePath){
         Workbook workbook=new XSSFWorkbook();
         try{
@@ -30,7 +30,7 @@ public class ExcelExportService {
 
 
             Row headerRow=sheet.createRow(0);
-            String headers[]={"IdCard-ID","Issue-Date","Receiver-Name","Issuer-Name","Return-Date","TempID-Name"};
+            String headers[]={"IdCard-ID","Issue-Date","Receiver-Name","Issuer-Name","Return-Date","In-Time","Out-Time","TempID-Name"};
             for(int i=0;i<headers.length;i++)
             {
                 Cell cell=headerRow.createCell(i);
@@ -41,11 +41,14 @@ public class ExcelExportService {
             int rowNum=1;
             for(excelModel model: data){
                 DateTimeFormatter dateFormatter=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                DateTimeFormatter timeFormatter=DateTimeFormatter.ofPattern("hh:mm:ss a");
                 String issueDateString=model.getIssueDate().format(dateFormatter);
                 String returnDateString=model.getReturnDate()!=null? model.getReturnDate().format(dateFormatter) : "Not returned!";
+                String inTimeString=model.getInTime().format(timeFormatter);
+                String outTimeString=model.getOutTime()!=null? model.getOutTime().format(timeFormatter) : "Not Returned!";
                 Row row= sheet.createRow(rowNum++);
                 Cell cell0=row.createCell(0);
-                cell0.setCellValue(model.getId());
+                cell0.setCellValue(model.getDisplayId());
                 cell0.setCellStyle(dataStyle);
                 Cell cell1=row.createCell(1);
                 cell1.setCellValue(issueDateString);
@@ -60,8 +63,14 @@ public class ExcelExportService {
                 cell4.setCellValue(returnDateString);
                 cell4.setCellStyle(dataStyle);
                 Cell cell5=row.createCell(5);
-                cell5.setCellValue(model.getTempIdName());
+                cell5.setCellValue(inTimeString);
                 cell5.setCellStyle(dataStyle);
+                Cell cell6=row.createCell(6);
+                cell6.setCellValue(outTimeString);
+                cell6.setCellStyle(dataStyle);
+                Cell cell7=row.createCell(7);
+                cell7.setCellValue(model.getTempIdName());
+                cell7.setCellStyle(dataStyle);
 
                 /*row.createCell(1).setCellValue(issueDateString);
                 row.createCell(2).setCellValue(model.getEmpName());
