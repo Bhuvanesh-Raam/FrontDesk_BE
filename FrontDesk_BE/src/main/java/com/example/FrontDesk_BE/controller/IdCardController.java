@@ -2,10 +2,8 @@ package com.example.FrontDesk_BE.controller;
 
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.model.excelModel;
-import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import com.example.FrontDesk_BE.service.IdCardExcelExportService;
 import com.example.FrontDesk_BE.service.IdCardService;
-import com.example.FrontDesk_BE.service.TempIdCardService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +26,7 @@ import java.util.List;
 @RequestMapping("api/idcard/")
 public class IdCardController {
     @Autowired
-    private TempIDCardRepository tempIDCardRepository;
-    @Autowired
     private IdCardService idCardService;
-    @Autowired
-    private TempIdCardService tempIdCardService;
 
     @Autowired
     private IdCardExcelExportService excelExportService;
@@ -58,17 +52,6 @@ public class IdCardController {
     {
         return idCardService.getIdCard(id);
     }
-
-   /* @GetMapping("filterByReturnStatus")
-    public Page<IdCardDto> filterByReturnStatus(Pageable pageable){
-        return idCardService.filterByReturnStatus(pageable);
-    }
-
-    @GetMapping("filterByIdOrName")
-    public Page<IdCardDto> filterByIdOrName(@RequestParam("searchParam") String searchParam, Pageable pageable)
-    {
-        return idCardService.filterByIDorName(searchParam,pageable);
-    }*/
 
     @GetMapping("filterByDate")
     public Page<IdCardDto> filterByDate(@RequestParam("startDate") LocalDate startDate,@RequestParam("endDate")LocalDate endDate,Pageable pageable)

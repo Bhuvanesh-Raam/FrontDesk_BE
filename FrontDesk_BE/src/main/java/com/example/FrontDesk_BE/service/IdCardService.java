@@ -46,8 +46,8 @@ public class IdCardService {
     }
 
     public Page<IdCardDto> getIdCardDtoList(Pageable pageable){
-        Sort.Order returnStatusOrder=Sort.Order.desc("returnStatus");
-        Sort.Order lastUpdatedOrder=Sort.Order.asc("lastUpdatedDate");
+        Sort.Order returnStatusOrder=Sort.Order.asc("returnStatus");
+        Sort.Order lastUpdatedOrder=Sort.Order.asc("lastUpdatedDate").nullsLast();
         if (pageable.getSort().isUnsorted()) {
             Sort customSort= Sort.by(returnStatusOrder,lastUpdatedOrder);
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), customSort);

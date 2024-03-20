@@ -2,7 +2,6 @@ package com.example.FrontDesk_BE.controller;
 
 import com.example.FrontDesk_BE.dto.TempIDCardDto;
 import com.example.FrontDesk_BE.entity.TempIDCard;
-import com.example.FrontDesk_BE.repository.TempIDCardRepository;
 import com.example.FrontDesk_BE.service.TempIdCardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/tempid")
 public class AdminController {
-    @Autowired
-    private TempIDCardRepository tempIDCardRepository;
+
     @Autowired
     private TempIdCardService tempIdCardService;
 
