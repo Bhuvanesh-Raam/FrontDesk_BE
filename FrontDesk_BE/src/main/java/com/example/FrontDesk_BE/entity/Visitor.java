@@ -7,10 +7,12 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
-@Table(name="visitor")
+@Table(name = "visitor")
 public class Visitor {
 
     @Id
@@ -21,17 +23,20 @@ public class Visitor {
     @Column(name = "display_id")
     private String displayId;
 
-    @Column(nullable=false)
-    private LocalDate issueDate;
-
-    @Column(name = "check_in_time", nullable=false)
-    private LocalTime inTime;
-
-    @Column(name = "visitor_name", nullable=false)
+    @Column(name = "visitor_name", nullable = false)
     private String visitorName;
 
-    @Column(name = "visitor_type", nullable=false)
+    @Column(name = "visitor_type", nullable = false)
     private String visitorType;
+
+    @Column(nullable = false)
+    private LocalDate issueDate;
+
+    @Column(name = "check_in_time", nullable = false)
+    private LocalTime inTime;
+
+    @Column(name = "contact_number", nullable = false)
+    private String contactNumber;
 
     @Column(name = "employee_name")
     private String empName;
@@ -45,7 +50,7 @@ public class Visitor {
     @Column(name = "return_date")
     private LocalDate returnDate;
 
-    @Column(name = "id_Issuer", nullable=false)
+    @Column(name = "id_Issuer", nullable = false)
     private String idIssuer;
 
     @JoinColumn(name = "temp_id")
@@ -56,13 +61,17 @@ public class Visitor {
     @LastModifiedDate
     private LocalDateTime lastUpdatedDate;
 
-    @OneToOne(mappedBy = "visitor",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "visitor", cascade = CascadeType.ALL)
     private VisitorSignature visitorSignature;
 
-    @Column(name="id_return_Status",nullable = false)
+    @Column(name = "id_return_Status", nullable = false)
     private Boolean idReturnStatus;
 
-    @Column(name="clocked_out_status")
+    @Column(name = "clocked_out_status")
     private Boolean clockedOutStatus;
+
+    @OneToMany(mappedBy = "visitor", cascade = CascadeType.ALL)
+    private List<Accessory> accessories = new ArrayList<>();
+
 
 }

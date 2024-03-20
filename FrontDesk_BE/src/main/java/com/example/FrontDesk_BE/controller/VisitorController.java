@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-/*@Validated*/
+/* @Validated */
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @RequestMapping("api/visitorAccess/")
@@ -22,35 +22,32 @@ public class VisitorController {
     private VisitorService visitorService;
 
     @GetMapping("list")
-    public Page<VisitorDto> getVisitorDtoList(@RequestParam(value = "searchParam",required = false) String searchParam, @RequestParam(value = "returnStatus",required = false) Boolean returnStatus, Pageable pageable) {
-//        Boolean returnStatusParam=returnStatus!=null?Boolean.valueOf(returnStatus):null;
-//        if(searchParam!=null && returnStatusParam!=null)
-//        {
-//            return visitorService.filterByIDorNameAndReturnStatus(searchParam,returnStatusParam,pageable);
-//        } else if (searchParam!=null) {
-//            return visitorService.filterByIDorName(searchParam,pageable);
-//        } else if (returnStatus!=null) {
-//            return visitorService.filterByReturnStatus(returnStatus,pageable);
-//        }
-//        else{
-            return visitorService.getVisitorDtoList(pageable);
-//        }
+    public Page<VisitorDto> getVisitorDtoList(@RequestParam(value = "searchParam", required = false) String searchParam,
+            @RequestParam(value = "returnStatus", required = false) Boolean returnStatus, Pageable pageable) {
+        
+        return visitorService.getVisitorDtoList(pageable);
+        
     }
 
     @PostMapping("save")
-    public ResponseEntity<String> saveVisitor(@Valid @RequestBody VisitorDto visitorDto){
+    public ResponseEntity<String> saveVisitor(@Valid @RequestBody VisitorDto visitorDto) {
         return visitorService.saveVisitor(visitorDto);
     }
 
     @PostMapping("edit")
-    public ResponseEntity<String> editVisitor(@RequestBody VisitorDto visitorDto)
-    {
+    public ResponseEntity<String> editVisitor(@RequestBody VisitorDto visitorDto) {
         return visitorService.editVisitor(visitorDto);
     }
 
     // @PutMapping("return")
-    // public ResponseEntity<String> clockOutVisitor(@RequestBody VisitorDto visitorDto)
+    // public ResponseEntity<String> clockOutVisitor(@RequestBody VisitorDto
+    // visitorDto)
     // {
-    //     return idCardService.returnIdCard(idCardDto);
+    // return idCardService.returnIdCard(idCardDto);
     // }
+
+    @GetMapping("search/{id}")
+    public VisitorDto getVisitorDtoWithID(@PathVariable Long id) {
+        return visitorService.getVisitor(id);
+    }
 }
