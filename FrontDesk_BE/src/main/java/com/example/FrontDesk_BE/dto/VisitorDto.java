@@ -27,15 +27,12 @@ public class VisitorDto {
     @NotNull(message = "Contact Number should not be empty or null")
     private String contactNumber;
     private Boolean visitEmployee;
-    // @NotBlank(message = "Employee name should not be empty or blank")
     private String empName;
-    // @NotNull(message = "Employee ID should not be null")
     private Long empId;
     private LocalTime outTime;
     private LocalDate returnDate;
     @NotBlank(message = "Issuer name should not be empty or blank")
     private String idIssuer;
-    @NotNull(message = "Temporary ID should not be empty or blank")
     private Long tempId;
     private String tempIdName;
     private String purposeOfVisit;

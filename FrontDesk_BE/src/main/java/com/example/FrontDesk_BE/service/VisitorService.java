@@ -178,7 +178,6 @@ public class VisitorService {
             }
             visitor.setIdIssuer(visitorDto.getIdIssuer());
 
-            // Handle Accessories
             if (visitorDto.getHasAccessories() && visitorDto.getAccessories() != null) {
                 visitor.getAccessories().clear();
                 List<Accessory> accessories = visitorDto.getAccessories().stream()
@@ -231,4 +230,37 @@ public class VisitorService {
             return null;
         }
     }
+
+    public ResponseEntity<String> clockoutVisitor(VisitorDto visitorDto) {
+        Long id = visitorDto.getId();
+        LocalTime outTime = visitorDto.getOutTime();
+        LocalDate returnDate = visitorDto.getReturnDate();
+
+        if (id == null || outTime == null || returnDate == null) {
+            return ResponseEntity.badRequest().body("Out time and Return date must not be empty.");
+        }
+
+        Optional<Visitor> optionalVisitor = visitorRepository.findById(id);
+        if (optionalVisitor.isPresent()) {
+            Visitor visitor = optionalVisitor.get();
+            if (visitor.getTempIdCard() != null) {
+                visitor.setOutTime(outTime);
+                visitor.setReturnDate(returnDate);
+                TempIDCard tempIDCard = visitor.getTempIdCard();
+                tempIDCard.setInUse(false);
+                tempIDCardRepository.save(tempIDCard);
+            } else {
+                visitor.setOutTime(outTime);
+                visitor.setReturnDate(returnDate);
+            }
+            visitor.setIdReturnStatus(true);
+            visitor.setClockedOutStatus(true);
+            visitorRepository.save(visitor);
+            return ResponseEntity.ok("Success");
+        } else {
+            return ResponseEntity.ok("Failure: Visitor not found");
+        }
+    }
+
+
 }
