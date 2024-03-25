@@ -22,6 +22,7 @@ public class Accessory {
     private Integer quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "visitor_id", nullable = false)
     private Visitor visitor;
 
 }

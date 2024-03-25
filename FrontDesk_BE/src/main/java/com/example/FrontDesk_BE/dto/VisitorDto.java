@@ -26,6 +26,7 @@ public class VisitorDto {
     private LocalTime inTime;
     @NotNull(message = "Contact Number should not be empty or null")
     private String contactNumber;
+    private Boolean visitEmployee;
     // @NotBlank(message = "Employee name should not be empty or blank")
     private String empName;
     // @NotNull(message = "Employee ID should not be null")
@@ -37,12 +38,15 @@ public class VisitorDto {
     @NotNull(message = "Temporary ID should not be empty or blank")
     private Long tempId;
     private String tempIdName;
-    private String receiverSign;
+    private String purposeOfVisit;
+    private Boolean tempIdIssued;
+    private Boolean hasAccessories;
+    private String visitorSign;
     private String issuerSign;
     private String imgCapture;
     private Boolean returnStatus;
     private Boolean clockedOutStatus;
-    private Boolean visitEmployee;
+
     private List<AccessoryDto> accessories;
     private String DisplayId;
     private LocalDateTime lastUpdatedDate;

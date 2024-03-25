@@ -47,6 +47,9 @@ public class Visitor {
     @Column(name = "checkout_time")
     private LocalTime outTime;
 
+    @Column(name = "purpose_of_visit")
+    private String purposeOfVisit;
+
     @Column(name = "return_date")
     private LocalDate returnDate;
 
@@ -70,8 +73,7 @@ public class Visitor {
     @Column(name = "clocked_out_status")
     private Boolean clockedOutStatus;
 
-    @OneToMany(mappedBy = "visitor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "visitor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Accessory> accessories = new ArrayList<>();
-
 
 }

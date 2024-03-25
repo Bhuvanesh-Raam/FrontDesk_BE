@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,15 +28,16 @@ public class VisitorService {
     private final VisitorRepository visitorRepository;
     private final TempIDCardRepository tempIDCardRepository;
     private final VisitorSignatureRepository visitorSignatureRepository;
+    private final AccessoriesRepository accessoriesRepository;
 
     private AccessoryDto accessoryDto(Accessory accessory) {
-    AccessoryDto accessoryDto = new AccessoryDto();
-    accessoryDto.setType(accessory.getType());
-    accessoryDto.setName(accessory.getName());
-    accessoryDto.setSerialNo(accessory.getSerialNumber());
-    accessoryDto.setQuantity(accessory.getQuantity());
-    return accessoryDto;
-}
+        AccessoryDto accessoryDto = new AccessoryDto();
+        accessoryDto.setType(accessory.getType());
+        accessoryDto.setName(accessory.getName());
+        accessoryDto.setSerialNo(accessory.getSerialNumber());
+        accessoryDto.setQuantity(accessory.getQuantity());
+        return accessoryDto;
+    }
 
     public Page<VisitorDto> getVisitorDtoList(Pageable pageable) {
         return visitorRepository.findAll(pageable).map(this::listDto);
@@ -59,68 +61,77 @@ public class VisitorService {
     @Transactional
     public ResponseEntity<String> saveVisitor(VisitorDto visitorDto) {
         try {
-                    Visitor visitor=new Visitor();
-                    visitor.setVisitorName(visitorDto.getVisitorName());
-                    visitor.setVisitorType(visitorDto.getVisitorType());
+            Visitor visitor = new Visitor();
+            visitor.setVisitorName(visitorDto.getVisitorName());
+            visitor.setVisitorType(visitorDto.getVisitorType());
+            visitor.setIssueDate(visitorDto.getIssueDate());
+            visitor.setInTime(visitorDto.getInTime());
+            visitor.setIdReturnStatus(false);
+            visitor.setClockedOutStatus(false);
+            visitor.setContactNumber(visitorDto.getContactNumber());
 
-                    visitor.setIssueDate(visitorDto.getIssueDate());
-                    visitor.setInTime(visitorDto.getInTime());
-                    visitor.setIdReturnStatus(false);
-                    visitor.setClockedOutStatus(false);
+            if (visitorDto.getPurposeOfVisit() != null) {
+                visitor.setPurposeOfVisit(visitorDto.getPurposeOfVisit());
+            }
 
-                    if (visitorDto.getVisitEmployee() != null && visitorDto.getVisitEmployee()) {
-                        visitor.setEmpName(visitorDto.getEmpName());
-                        visitor.setEmpId(visitorDto.getEmpId());
-                    }
+            if (visitorDto.getVisitEmployee() != null && visitorDto.getVisitEmployee()) {
+                visitor.setEmpName(visitorDto.getEmpName());
+                visitor.setEmpId(visitorDto.getEmpId());
+            }
 
-                    visitor.setIdIssuer(visitorDto.getIdIssuer());
+            visitor.setIdIssuer(visitorDto.getIdIssuer());
 
-                    if (visitorDto.getTempId() != null) {
-                        Optional<TempIDCard> tempOpt = tempIDCardRepository.findById(visitorDto.getTempId());
-                        if (tempOpt.isPresent()) {
-                            TempIDCard tempIDCard = tempOpt.get();
-                            visitor.setTempIdCard(tempIDCard);
-                            tempIDCard.setInUse(true);
-                            tempIDCardRepository.save(tempIDCard);
-                        } else {
-                            return ResponseEntity.ok("Failure: Temp ID Card not found");
-                        }
-                    }
+            if (visitorDto.getTempIdIssued() != null && visitorDto.getTempIdIssued()) {
+                Optional<TempIDCard> tempOpt = tempIDCardRepository.findById(visitorDto.getTempId());
+                if (tempOpt.isPresent() && !tempOpt.get().getInUse()) {
+                    TempIDCard tempIDCard = tempOpt.get();
+                    visitor.setTempIdCard(tempIDCard);
+                    tempIDCard.setInUse(true);
+                    tempIDCardRepository.save(tempIDCard);
+                } else {
+                    return ResponseEntity.ok("Failure: Temp ID Card not found");
+                }
+            }
 
-                    if (visitorDto.getAccessories() != null && !visitorDto.getAccessories().isEmpty()) {
-                        Visitor finalVisitor = visitor;
-                        List<Accessory> accessories = visitorDto.getAccessories().stream()
-                                .map(dto -> {
-                                    Accessory accessory = new Accessory();
-                                    accessory.setType(dto.getType());
-                                    accessory.setName(dto.getName());
-                                    accessory.setSerialNumber(dto.getSerialNo());
-                                    accessory.setQuantity(dto.getQuantity());
-                                    accessory.setVisitor(finalVisitor);
-                                    return accessory;
-                                }).collect(Collectors.toList());
-                        visitor.setAccessories(accessories);
-                    }
+            visitor = visitorRepository.save(visitor);
 
-                    String[] receiverSignArray = visitorDto.getReceiverSign().split(",");
-                    String[] issuerSignArray = visitorDto.getIssuerSign().split(",");
-                    String[] imgCaptureArray = visitorDto.getImgCapture().split(",");
+            if (visitorDto.getHasAccessories() && visitorDto.getAccessories() != null
+                    && !visitorDto.getAccessories().isEmpty()) {
+                Visitor finalVisitor = visitor;
+                List<Accessory> accessories = visitorDto.getAccessories().stream()
+                        .map(dto -> {
+                            Accessory accessory = new Accessory();
+                            accessory.setType(dto.getType());
+                            accessory.setName(dto.getName());
+                            accessory.setSerialNumber(dto.getSerialNo());
+                            accessory.setQuantity(dto.getQuantity());
+                            accessory.setVisitor(finalVisitor);
+                            return accessory;
+                        }).collect(Collectors.toList());
 
-                    VisitorSignature visitorSignature=new VisitorSignature();
+                accessoriesRepository.saveAll(accessories);
+                visitor.setAccessories(accessories);
+            }
 
-                    visitorSignature.setReceiverFileType(receiverSignArray[0]);
-                    visitorSignature.setIssuerFileType(issuerSignArray[0]);
-                    visitorSignature.setImgFileType(imgCaptureArray[0]);
-                    visitorSignature.setReceiverSign(Base64.decodeBase64(receiverSignArray[1]));
-                    visitorSignature.setIssuerSign(Base64.decodeBase64(issuerSignArray[1]));
-                    visitorSignature.setImgCapture(Base64.decodeBase64(imgCaptureArray[1]));
-                    visitorSignature.setVisitor(visitor);
+            String[] visitorSignArray = visitorDto.getVisitorSign().split(",");
+            String[] issuerSignArray = visitorDto.getIssuerSign().split(",");
+            String[] imgCaptureArray = visitorDto.getImgCapture().split(",");
 
-                    visitor = visitorRepository.save(visitor);
-                    visitorSignatureRepository.save(visitorSignature);
+            VisitorSignature visitorSignature = new VisitorSignature();
+            visitorSignature.setVisitorFileType(visitorSignArray[0]);
+            visitorSignature.setIssuerFileType(issuerSignArray[0]);
+            visitorSignature.setImgFileType(imgCaptureArray[0]);
+            visitorSignature.setVisitorSign(Base64.decodeBase64(visitorSignArray[1]));
+            visitorSignature.setIssuerSign(Base64.decodeBase64(issuerSignArray[1]));
+            visitorSignature.setImgCapture(Base64.decodeBase64(imgCaptureArray[1]));
+            visitorSignature.setVisitor(visitor);
 
-                    return ResponseEntity.ok("Success");
-        } catch (Exception e) {
+            visitorSignatureRepository.save(visitorSignature);
+
+            return ResponseEntity.ok("Success");
+        } catch (
+
+        Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
         }
@@ -131,31 +142,62 @@ public class VisitorService {
         LocalDate issueDate = visitorDto.getIssueDate();
         LocalTime inTime = visitorDto.getInTime();
         Long tempId = visitorDto.getTempId();
+        if (visitorDto.getId() == null) {
+            return ResponseEntity.badRequest().body("Visitor ID is required.");
+        }
 
-        if (id == null || issueDate == null || inTime == null || tempId == null) {
+        if (id == null || issueDate == null || inTime == null) {
             return ResponseEntity.badRequest()
-                    .body("IDCard-Number, Issue-Date, In-Time & Temp-Card should not be left as empty.");
+                    .body("IDCard-Number, Issue-Date, In-Time should not be left as empty.");
         }
         Optional<Visitor> optionalVisitor = visitorRepository.findById(id);
         if (optionalVisitor.isPresent()) {
             Visitor visitor = optionalVisitor.get();
+            visitor.setVisitorName(visitorDto.getVisitorName());
+            visitor.setVisitorType(visitorDto.getVisitorType());
             visitor.setIssueDate(visitorDto.getIssueDate());
             visitor.setInTime(visitorDto.getInTime());
-            TempIDCard tempIDCard = visitor.getTempIdCard();
-            tempIDCard.setInUse(false);
-            Optional<TempIDCard> temp = tempIDCardRepository.findById(tempId);
-            if (temp.isPresent()) {
-                TempIDCard tempCard = temp.get();
-                visitor.setTempIdCard(tempCard);
-                tempCard.setInUse(true);
-                visitorRepository.save(visitor);
-                tempIDCardRepository.save(tempIDCard);
-                return ResponseEntity.ok("Success");
-            } else {
-                return ResponseEntity.ok("Failure Temp Id not found");
+            visitor.setContactNumber(visitorDto.getContactNumber());
+            if (visitorDto.getPurposeOfVisit() != null) {
+                visitor.setPurposeOfVisit(visitorDto.getPurposeOfVisit());
             }
+            if (visitorDto.getVisitEmployee() != null && visitorDto.getVisitEmployee()) {
+                visitor.setEmpName(visitorDto.getEmpName());
+                visitor.setEmpId(visitorDto.getEmpId());
+            }
+            if (visitorDto.getTempIdIssued() != null && visitorDto.getTempIdIssued()) {
+                Optional<TempIDCard> tempOpt = tempIDCardRepository.findById(visitorDto.getTempId());
+                if (tempOpt.isPresent() && !tempOpt.get().getInUse()) {
+                    TempIDCard tempIDCard = tempOpt.get();
+                    visitor.setTempIdCard(tempIDCard);
+                    tempIDCard.setInUse(true);
+                    tempIDCardRepository.save(tempIDCard);
+                } else {
+                    return ResponseEntity.ok("Failure: Temp ID Card not found");
+                }
+            }
+            visitor.setIdIssuer(visitorDto.getIdIssuer());
+
+            // Handle Accessories
+            if (visitorDto.getHasAccessories() && visitorDto.getAccessories() != null) {
+                visitor.getAccessories().clear();
+                List<Accessory> accessories = visitorDto.getAccessories().stream()
+                        .map(dto -> {
+                            Accessory accessory = new Accessory();
+                            accessory.setType(dto.getType());
+                            accessory.setName(dto.getName());
+                            accessory.setSerialNumber(dto.getSerialNo());
+                            accessory.setQuantity(dto.getQuantity());
+                            accessory.setVisitor(visitor);
+                            return accessory;
+                        }).collect(Collectors.toList());
+                visitor.setAccessories(accessories);
+            }
+
+            visitorRepository.save(visitor);
+            return ResponseEntity.ok("V Success");
         } else {
-            return ResponseEntity.ok("IDCard not found, check the ID number");
+            return ResponseEntity.ok("Visitor not found, check the ID number");
         }
     }
 
@@ -176,13 +218,14 @@ public class VisitorService {
             visitorDto.setIdIssuer(visitor.get().getIdIssuer());
             visitorDto.setTempId(visitor.get().getTempIdCard().getId());
             visitorDto.setTempIdName(visitor.get().getTempIdCard().getIdName());
-            visitorDto.setReceiverSign(visitor.get().getVisitorSignature().getReceiverSign().toString());
+            visitorDto.setVisitorSign(visitor.get().getVisitorSignature().getVisitorSign().toString());
             visitorDto.setIssuerSign(visitor.get().getVisitorSignature().getIssuerSign().toString());
             visitorDto.setImgCapture(visitor.get().getVisitorSignature().getImgCapture().toString());
             visitorDto.setReturnStatus(visitor.get().getIdReturnStatus());
             visitorDto.setClockedOutStatus(visitor.get().getClockedOutStatus());
             visitorDto.setVisitEmployee(visitor.get().getEmpId() != null);
-            visitorDto.setAccessories(visitor.get().getAccessories().stream().map(this::accessoryDto).collect(Collectors.toList()));
+            visitorDto.setAccessories(
+                    visitor.get().getAccessories().stream().map(this::accessoryDto).collect(Collectors.toList()));
             return visitorDto;
         } else {
             return null;
