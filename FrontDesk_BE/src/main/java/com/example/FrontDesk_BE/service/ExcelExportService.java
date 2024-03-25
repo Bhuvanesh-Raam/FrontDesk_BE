@@ -1,7 +1,6 @@
 package com.example.FrontDesk_BE.service;
 
 import com.example.FrontDesk_BE.model.excelModel;
-import com.example.FrontDesk_BE.model.visitorExcelModel;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -15,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
-public class IdCardExcelExportService {
+public class ExcelExportService {
     public Workbook exportToExcel(List<excelModel> data, String filePath){
         Workbook workbook=new XSSFWorkbook();
         try{
@@ -149,6 +148,9 @@ public class IdCardExcelExportService {
     //             Cell cell7=row.createCell(7);
     //             cell7.setCellValue(model.getTempIdIssued());
     //             cell7.setCellStyle(dataStyle);
+    //             Cell cell8=row.createCell(8);
+    //             cell8.setCellValue(model.getTempIdIssued());
+    //             cell8.setCellStyle(dataStyle);
 
     //             /*row.createCell(1).setCellValue(issueDateString);
     //             row.createCell(2).setCellValue(model.getEmpName());

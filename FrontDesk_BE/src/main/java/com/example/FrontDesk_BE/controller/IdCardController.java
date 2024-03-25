@@ -2,7 +2,7 @@ package com.example.FrontDesk_BE.controller;
 
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.model.excelModel;
-import com.example.FrontDesk_BE.service.IdCardExcelExportService;
+import com.example.FrontDesk_BE.service.ExcelExportService;
 import com.example.FrontDesk_BE.service.IdCardService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ public class IdCardController {
     private IdCardService idCardService;
 
     @Autowired
-    private IdCardExcelExportService excelExportService;
+    private ExcelExportService excelExportService;
 
     @GetMapping("list")
     public Page<IdCardDto> getIdCardDtoList( @RequestParam(value = "searchParam",required = false) String searchParam, @RequestParam(value = "returnStatus",required = false) Boolean returnStatus, Pageable pageable) {

@@ -3,7 +3,8 @@ package com.example.FrontDesk_BE.controller;
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.dto.VisitorDto;
 import com.example.FrontDesk_BE.model.excelModel;
-import com.example.FrontDesk_BE.service.IdCardExcelExportService;
+import com.example.FrontDesk_BE.model.visitorExcelModel;
+import com.example.FrontDesk_BE.service.ExcelExportService;
 import com.example.FrontDesk_BE.service.IdCardService;
 import com.example.FrontDesk_BE.service.VisitorService;
 
@@ -32,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class VisitorController {
     @Autowired
     private VisitorService visitorService;
-    private IdCardExcelExportService excelExportService;
+    private ExcelExportService excelExportService;
 
     @GetMapping("list")
     public Page<VisitorDto> getVisitorDtoList(@RequestParam(value = "searchParam", required = false) String searchParam,
@@ -75,7 +76,7 @@ public class VisitorController {
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy");
 //        String startDateformat = startDate.format(formatter);
 //        String endDateformat = endDate.format(formatter);
-////        List<excelModel> data = visitorService.getDataForExcel(startDate, endDate);
+//        List<visitorExcelModel> data = visitorService.getDataForExcel(startDate, endDate);
 //        String fileName = "exportData_" + startDateformat + "_To_" + endDateformat + ".xlsx";
 //        Workbook workBook = excelExportService.exportToExcel(data, fileName);
 //        try {

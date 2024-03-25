@@ -4,6 +4,8 @@ import com.example.FrontDesk_BE.constants.ApplicationConstants;
 import com.example.FrontDesk_BE.dto.AccessoryDto;
 import com.example.FrontDesk_BE.dto.VisitorDto;
 import com.example.FrontDesk_BE.entity.*;
+import com.example.FrontDesk_BE.model.excelModel;
+import com.example.FrontDesk_BE.model.visitorExcelModel;
 import com.example.FrontDesk_BE.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
@@ -166,15 +168,22 @@ public class VisitorService {
                 visitor.setEmpId(visitorDto.getEmpId());
             }
             if (visitorDto.getTempIdIssued() != null && visitorDto.getTempIdIssued()) {
-                Optional<TempIDCard> tempOpt = tempIDCardRepository.findById(visitorDto.getTempId());
-                if (tempOpt.isPresent() && !tempOpt.get().getInUse()) {
-                    TempIDCard tempIDCard = tempOpt.get();
-                    visitor.setTempIdCard(tempIDCard);
-                    tempIDCard.setInUse(true);
-                    tempIDCardRepository.save(tempIDCard);
-                } else {
-                    return ResponseEntity.ok("Failure: Temp ID Card not found");
+                if(visitorDto.getTempId()!=null) {
+                    Optional<TempIDCard> tempOpt = tempIDCardRepository.findById(visitorDto.getTempId());
+                    if (tempOpt.isPresent() && !tempOpt.get().getInUse()) {
+                        TempIDCard tempIDCard = tempOpt.get();
+                        visitor.setTempIdCard(tempIDCard);
+                        tempIDCard.setInUse(true);
+                        tempIDCardRepository.save(tempIDCard);
+                    } else {
+                        return ResponseEntity.ok("Failure: Temp ID Card not found");
+                    }
                 }
+                else
+                {
+                    return ResponseEntity.ok("Failure: Temp ID Card not provided/null");
+                }
+
             }
             visitor.setIdIssuer(visitorDto.getIdIssuer());
 
@@ -262,5 +271,23 @@ public class VisitorService {
         }
     }
 
+
+//    @Transactional
+//    public List<visitorExcelModel> getVisitorDataForExcel(LocalDate startDate, LocalDate endDate){
+//        List<Visitor> visitors=visitorRepository.findAllByIssueDateBetween(startDate,endDate);
+//        List<visitorExcelModel> excelModelList=new ArrayList<>();
+//        for(Visitor visitor: visitors){
+//            visitorExcelModel visitorModel =new visitorExcelModel();
+//            visitorModel.
+//            visitorModel.
+//            visitorModel.
+//            visitorModel.
+//            visitorModel.
+//            visitorModel.
+//            model.setTempIdName(visitor.getTempIdCard().getIdName());
+//            excelModelList.add(visitorModel);
+//        }
+//        return excelModelList;
+//    }
 
 }
