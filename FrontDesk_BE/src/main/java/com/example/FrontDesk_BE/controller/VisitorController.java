@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class VisitorController {
     @Autowired
     private VisitorService visitorService;
+    @Autowired
     private ExcelExportService excelExportService;
 
     @GetMapping("list")
@@ -70,23 +71,23 @@ public class VisitorController {
         return visitorService.getVisitor(id);
     }
 
-//    @GetMapping("exportdata")
-//    public void downloadExcel(@RequestParam("startDate") LocalDate startDate,
-//            @RequestParam("endDate") LocalDate endDate, HttpServletResponse response) {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy");
-//        String startDateformat = startDate.format(formatter);
-//        String endDateformat = endDate.format(formatter);
-//        List<visitorExcelModel> data = visitorService.getDataForExcel(startDate, endDate);
-//        String fileName = "exportData_" + startDateformat + "_To_" + endDateformat + ".xlsx";
-//        Workbook workBook = excelExportService.exportToExcel(data, fileName);
-//        try {
-//            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-//            workBook.write(response.getOutputStream());
-//            response.flushBuffer();
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
-//    }
+    @GetMapping("exportdata")
+    public void downloadExcel(@RequestParam("startDate") LocalDate startDate,
+            @RequestParam("endDate") LocalDate endDate, HttpServletResponse response) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy");
+        String startDateformat = startDate.format(formatter);
+        String endDateformat = endDate.format(formatter);
+        List<visitorExcelModel> data = visitorService.getVisitorDataForExcel(startDate, endDate);
+        String fileName = "exportData_" + startDateformat + "_To_" + endDateformat + ".xlsx";
+        Workbook workBook = excelExportService.exportVisitorToExcel(data, fileName);
+        try {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            workBook.write(response.getOutputStream());
+            response.flushBuffer();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
 }

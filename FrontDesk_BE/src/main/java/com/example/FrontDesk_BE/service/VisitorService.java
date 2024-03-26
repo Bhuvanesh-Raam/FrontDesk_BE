@@ -228,13 +228,14 @@ public class VisitorService {
             visitorDto.setIdIssuer(visitor.get().getIdIssuer());
             visitorDto.setTempId(visitor.get().getTempIdCard().getId());
             visitorDto.setTempIdName(visitor.get().getTempIdCard().getIdName());
-            String issuerSignBase64=Base64.encodeBase64String(visitor.get().getVisitorSignature().getIssuerSign());
-            String visitorSignBase64=Base64.encodeBase64String(visitor.get().getVisitorSignature().getVisitorSign());
-            String imgCaptureBase64=Base64.encodeBase64String(visitor.get().getVisitorSignature().getImgCapture());
+            String issuerSignBase64 = Base64.encodeBase64String(visitor.get().getVisitorSignature().getIssuerSign());
+            String visitorSignBase64 = Base64.encodeBase64String(visitor.get().getVisitorSignature().getVisitorSign());
+            String imgCaptureBase64 = Base64.encodeBase64String(visitor.get().getVisitorSignature().getImgCapture());
 
-            visitorDto.setVisitorSign(visitor.get().getVisitorSignature().getVisitorFileType()+","+visitorSignBase64);
-            visitorDto.setIssuerSign(visitor.get().getVisitorSignature().getIssuerFileType()+","+issuerSignBase64);
-            visitorDto.setImgCapture(visitor.get().getVisitorSignature().getImgFileType()+","+imgCaptureBase64);
+            visitorDto
+                    .setVisitorSign(visitor.get().getVisitorSignature().getVisitorFileType() + "," + visitorSignBase64);
+            visitorDto.setIssuerSign(visitor.get().getVisitorSignature().getIssuerFileType() + "," + issuerSignBase64);
+            visitorDto.setImgCapture(visitor.get().getVisitorSignature().getImgFileType() + "," + imgCaptureBase64);
             visitorDto.setReturnStatus(visitor.get().getIdReturnStatus());
             visitorDto.setClockedOutStatus(visitor.get().getClockedOutStatus());
             visitorDto.setVisitEmployee(visitor.get().getEmpId() != null);
@@ -277,24 +278,27 @@ public class VisitorService {
         }
     }
 
-    // @Transactional
-    // public List<visitorExcelModel> getVisitorDataForExcel(LocalDate startDate,
-    // LocalDate endDate){
-    // List<Visitor>
-    // visitors=visitorRepository.findAllByIssueDateBetween(startDate,endDate);
-    // List<visitorExcelModel> excelModelList=new ArrayList<>();
-    // for(Visitor visitor: visitors){
-    // visitorExcelModel visitorModel =new visitorExcelModel();
-    // visitorModel.
-    // visitorModel.
-    // visitorModel.
-    // visitorModel.
-    // visitorModel.
-    // visitorModel.
-    // model.setTempIdName(visitor.getTempIdCard().getIdName());
-    // excelModelList.add(visitorModel);
-    // }
-    // return excelModelList;
-    // }
+    @Transactional
+    public List<visitorExcelModel> getVisitorDataForExcel(LocalDate startDate,
+            LocalDate endDate) {
+        List<Visitor> visitors = visitorRepository.findAllByIssueDateBetween(startDate, endDate);
+        List<visitorExcelModel> visitorExcelModelList = new ArrayList<>();
+        for (Visitor visitor : visitors) {
+            visitorExcelModel visitorModel = new visitorExcelModel();
+             visitorModel.setDisplayId(ApplicationConstants.VIS_ID+visitor.getId());
+             visitorModel.setIssueDate(visitor.getIssueDate());
+             visitorModel.setVisitorName(visitor.getVisitorName());
+             visitorModel.setVisitorType(visitor.getVisitorType());
+             visitorModel.setContactNo(visitor.getContactNumber());
+             visitorModel.setIdIssuer(visitor.getIdIssuer());
+             visitorModel.setEmployeeVisited(visitor.getEmpName());
+             visitorModel.setClockoutDate(visitor.getReturnDate());
+             visitorModel.setInTime(visitor.getInTime());
+             visitorModel.setOutTime(visitor.getOutTime());
+            visitorModel.setTempIdIssued(visitor.getTempIdCard().getIdName());
+            visitorExcelModelList.add(visitorModel);
+        }
+        return visitorExcelModelList;
+    }
 
 }
