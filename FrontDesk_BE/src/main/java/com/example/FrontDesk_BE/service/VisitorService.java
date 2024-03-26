@@ -228,9 +228,13 @@ public class VisitorService {
             visitorDto.setIdIssuer(visitor.get().getIdIssuer());
             visitorDto.setTempId(visitor.get().getTempIdCard().getId());
             visitorDto.setTempIdName(visitor.get().getTempIdCard().getIdName());
-            visitorDto.setVisitorSign(visitor.get().getVisitorSignature().getVisitorSign().toString());
-            visitorDto.setIssuerSign(visitor.get().getVisitorSignature().getIssuerSign().toString());
-            visitorDto.setImgCapture(visitor.get().getVisitorSignature().getImgCapture().toString());
+            String issuerSignBase64=Base64.encodeBase64String(visitor.get().getVisitorSignature().getIssuerSign());
+            String visitorSignBase64=Base64.encodeBase64String(visitor.get().getVisitorSignature().getVisitorSign());
+            String imgCaptureBase64=Base64.encodeBase64String(visitor.get().getVisitorSignature().getImgCapture());
+
+            visitorDto.setVisitorSign(visitor.get().getVisitorSignature().getVisitorFileType()+","+visitorSignBase64);
+            visitorDto.setIssuerSign(visitor.get().getVisitorSignature().getIssuerFileType()+","+issuerSignBase64);
+            visitorDto.setImgCapture(visitor.get().getVisitorSignature().getImgFileType()+","+imgCaptureBase64);
             visitorDto.setReturnStatus(visitor.get().getIdReturnStatus());
             visitorDto.setClockedOutStatus(visitor.get().getClockedOutStatus());
             visitorDto.setVisitEmployee(visitor.get().getEmpId() != null);
