@@ -168,7 +168,7 @@ public class VisitorService {
                 visitor.setEmpId(visitorDto.getEmpId());
             }
             if (visitorDto.getTempIdIssued() != null && visitorDto.getTempIdIssued()) {
-                if(visitorDto.getTempId()!=null) {
+                if (visitorDto.getTempId() != null) {
                     Optional<TempIDCard> tempOpt = tempIDCardRepository.findById(visitorDto.getTempId());
                     if (tempOpt.isPresent() && !tempOpt.get().getInUse()) {
                         TempIDCard tempIDCard = tempOpt.get();
@@ -178,9 +178,7 @@ public class VisitorService {
                     } else {
                         return ResponseEntity.ok("Failure: Temp ID Card not found");
                     }
-                }
-                else
-                {
+                } else {
                     return ResponseEntity.ok("Failure: Temp ID Card not provided/null");
                 }
 
@@ -219,6 +217,10 @@ public class VisitorService {
             visitorDto.setIssueDate(visitor.get().getIssueDate());
             visitorDto.setInTime(visitor.get().getInTime());
             visitorDto.setContactNumber(visitor.get().getContactNumber());
+            visitorDto.setPurposeOfVisit(visitor.get().getPurposeOfVisit());
+            visitorDto.setVisitEmployee(visitor.get().getEmpId() != null);
+            visitorDto.setHasAccessories(visitor.get().getAccessories() != null);
+            visitorDto.setTempIdIssued(visitor.get().getTempIdCard() != null);
             visitorDto.setEmpName(visitor.get().getEmpName());
             visitorDto.setEmpId(visitor.get().getEmpId());
             visitorDto.setOutTime(visitor.get().getOutTime());
@@ -271,23 +273,24 @@ public class VisitorService {
         }
     }
 
-
-//    @Transactional
-//    public List<visitorExcelModel> getVisitorDataForExcel(LocalDate startDate, LocalDate endDate){
-//        List<Visitor> visitors=visitorRepository.findAllByIssueDateBetween(startDate,endDate);
-//        List<visitorExcelModel> excelModelList=new ArrayList<>();
-//        for(Visitor visitor: visitors){
-//            visitorExcelModel visitorModel =new visitorExcelModel();
-//            visitorModel.
-//            visitorModel.
-//            visitorModel.
-//            visitorModel.
-//            visitorModel.
-//            visitorModel.
-//            model.setTempIdName(visitor.getTempIdCard().getIdName());
-//            excelModelList.add(visitorModel);
-//        }
-//        return excelModelList;
-//    }
+    // @Transactional
+    // public List<visitorExcelModel> getVisitorDataForExcel(LocalDate startDate,
+    // LocalDate endDate){
+    // List<Visitor>
+    // visitors=visitorRepository.findAllByIssueDateBetween(startDate,endDate);
+    // List<visitorExcelModel> excelModelList=new ArrayList<>();
+    // for(Visitor visitor: visitors){
+    // visitorExcelModel visitorModel =new visitorExcelModel();
+    // visitorModel.
+    // visitorModel.
+    // visitorModel.
+    // visitorModel.
+    // visitorModel.
+    // visitorModel.
+    // model.setTempIdName(visitor.getTempIdCard().getIdName());
+    // excelModelList.add(visitorModel);
+    // }
+    // return excelModelList;
+    // }
 
 }
