@@ -41,7 +41,7 @@ public class VisitorDto {
     private String visitorSign;
     private String issuerSign;
     private String imgCapture;
-    private Boolean returnStatus;
+//    private Boolean returnStatus;
     private Boolean clockedOutStatus;
 
     private List<AccessoryDto> accessories;

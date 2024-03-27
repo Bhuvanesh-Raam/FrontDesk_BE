@@ -48,14 +48,16 @@ public class VisitorService {
     private VisitorDto listDto(Visitor visitor) {
         VisitorDto visitorDto = new VisitorDto();
         visitorDto.setId(visitor.getId());
-        visitorDto.setDisplayId(ApplicationConstants.ID_CARD_ID + visitor.getId());
+        visitorDto.setDisplayId(ApplicationConstants.VIS_ID + visitor.getId());
         visitorDto.setIssueDate(visitor.getIssueDate());
         visitorDto.setInTime(visitor.getInTime());
         visitorDto.setVisitorName(visitor.getVisitorName());
+        visitorDto.setEmpName(visitor.getEmpName());
         visitorDto.setOutTime(visitor.getOutTime());
         visitorDto.setReturnDate(visitor.getReturnDate());
-        visitorDto.setReturnStatus(visitor.getIdReturnStatus());
-        visitorDto.setLastUpdatedDate(visitor.getLastUpdatedDate());
+//        visitorDto.setReturnStatus(visitor.getIdReturnStatus());
+        visitorDto.setClockedOutStatus(visitor.getClockedOutStatus());
+//        visitorDto.setLastUpdatedDate(visitor.getLastUpdatedDate());
         visitorDto.setTempIdName(visitor.getTempIdCard().getIdName());
         return visitorDto;
     }
@@ -236,7 +238,7 @@ public class VisitorService {
                     .setVisitorSign(visitor.get().getVisitorSignature().getVisitorFileType() + "," + visitorSignBase64);
             visitorDto.setIssuerSign(visitor.get().getVisitorSignature().getIssuerFileType() + "," + issuerSignBase64);
             visitorDto.setImgCapture(visitor.get().getVisitorSignature().getImgFileType() + "," + imgCaptureBase64);
-            visitorDto.setReturnStatus(visitor.get().getIdReturnStatus());
+//            visitorDto.setReturnStatus(visitor.get().getIdReturnStatus());
             visitorDto.setClockedOutStatus(visitor.get().getClockedOutStatus());
             visitorDto.setVisitEmployee(visitor.get().getEmpId() != null);
             visitorDto.setAccessories(
