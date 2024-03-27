@@ -29,6 +29,7 @@ public class VisitorDto {
     private Boolean visitEmployee;
     private String empName;
     private Long empId;
+    private String employeeID;
     private LocalTime outTime;
     private LocalDate returnDate;
     @NotBlank(message = "Issuer name should not be empty or blank")

@@ -36,15 +36,15 @@ public class VisitorController {
     @GetMapping("list")
     public Page<VisitorDto> getVisitorDtoList(@RequestParam(value = "searchParam", required = false) String searchParam,
             @RequestParam(value = "clockedOutStatus", required = false) Boolean clockedOutStatus, Pageable pageable) {
-        Boolean clockedOutStatusParam = clockedOutStatus != null && clockedOutStatus;
-        if (searchParam != null) {
+        Boolean clockedOutStatusParam=clockedOutStatus!=null?Boolean.valueOf(clockedOutStatus):null;
+        System.out.println("searchParam: " + searchParam + " clockedOutStatus: " + clockedOutStatusParam);
+        if (searchParam != null && !searchParam.isEmpty() && clockedOutStatusParam != null) {
             return visitorService.filterByIDorNameAndClockedOutStatus(searchParam, clockedOutStatusParam, pageable);
         } else if (searchParam != null && !searchParam.isEmpty()) {
             return visitorService.filterByIDorName(searchParam, pageable);
         } else if (clockedOutStatusParam != null) {
             return visitorService.filterByClockedOutStatus(clockedOutStatusParam, pageable);
-        }
-        else
+        } else
             return visitorService.getVisitorDtoList(pageable);
 
     }

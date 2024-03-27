@@ -224,6 +224,7 @@ public class VisitorService {
             visitorDto.setOutTime(visitor.get().getOutTime());
             visitorDto.setReturnDate(visitor.get().getReturnDate());
             visitorDto.setIdIssuer(visitor.get().getIdIssuer());
+            visitorDto.setEmployeeID(visitor.get().getEmpId() != null ? visitor.get().getEmpId().toString() : null);
             if (visitor.get().getTempIdCard() != null) {
                 visitorDto.setTempId(visitor.get().getTempIdCard().getId());
                 visitorDto.setTempIdName(visitor.get().getTempIdCard().getIdName());
