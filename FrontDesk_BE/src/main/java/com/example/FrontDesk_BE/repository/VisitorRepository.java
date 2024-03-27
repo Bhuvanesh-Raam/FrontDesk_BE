@@ -13,19 +13,20 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface VisitorRepository extends JpaRepository<Visitor,Long> {
+public interface VisitorRepository extends JpaRepository<Visitor, Long> {
+    @Query("SELECT v FROM Visitor v WHERE CAST(v.displayId AS STRING) LIKE %:visitorIdPattern%")
+    Page<Visitor> findByPartialVisitorId(@Param("visitorIdPattern") String visitorIdPattern, Pageable pageable);
+
+    @Query("SELECT v FROM Visitor v WHERE CAST(v.displayId AS STRING) LIKE %:visitorIdPattern% AND v.clockedOutStatus=:clockedOutStatus")
+    Page<Visitor> findByPartialVisitorIdAndClockedOutStatus(String visitorIdPattern, Boolean clockedOutStatus,
+            Pageable pageable);
 
     Page<Visitor> findByClockedOutStatus(boolean clockedOutStatus, Pageable pageable);
 
     Page<Visitor> findByVisitorNameContainingIgnoreCase(String searchParam, Pageable pageable);
 
-    @Query("SELECT v FROM Visitor v WHERE CAST(v.visitorId AS STRING) LIKE %:visitorIdPattern%")
-    Page<Visitor> findByPartialVisitorId(@Param("visitorIdPattern")String visitorIdPattern, Pageable pageable);
-
-    Page<Visitor> findByVisitorNameContainingIgnoreCaseAndClockedOutStatus(String searchParam, Boolean clockedOutStatus, Pageable pageable);
-
-    @Query("SELECT v FROM Visitor v WHERE CAST(v.visitorId AS STRING) LIKE %:visitorIdPattern% AND v.clockedOutStatus=:clockedOutStatus")
-    Page<Visitor> findByPartialVisitorIdAndClockedOutStatus(String visitorIdPattern, Boolean clockedOutStatus, Pageable pageable);
+    Page<Visitor> findByVisitorNameContainingIgnoreCaseAndClockedOutStatus(String searchParam, Boolean clockedOutStatus,
+            Pageable pageable);
 
     List<Visitor> findAllByIssueDateBetween(LocalDate startDate, LocalDate endDate);
 }
