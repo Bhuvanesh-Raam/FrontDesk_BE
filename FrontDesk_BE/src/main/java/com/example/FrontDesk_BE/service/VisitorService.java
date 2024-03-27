@@ -4,12 +4,12 @@ import com.example.FrontDesk_BE.constants.ApplicationConstants;
 import com.example.FrontDesk_BE.dto.AccessoryDto;
 import com.example.FrontDesk_BE.dto.VisitorDto;
 import com.example.FrontDesk_BE.entity.*;
-import com.example.FrontDesk_BE.model.excelModel;
 import com.example.FrontDesk_BE.model.visitorExcelModel;
 import com.example.FrontDesk_BE.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,10 +55,12 @@ public class VisitorService {
         visitorDto.setEmpName(visitor.getEmpName());
         visitorDto.setOutTime(visitor.getOutTime());
         visitorDto.setReturnDate(visitor.getReturnDate());
-//        visitorDto.setReturnStatus(visitor.getIdReturnStatus());
         visitorDto.setClockedOutStatus(visitor.getClockedOutStatus());
-//        visitorDto.setLastUpdatedDate(visitor.getLastUpdatedDate());
-        visitorDto.setTempIdName(visitor.getTempIdCard().getIdName());
+        if (visitor.getTempIdCard() != null && visitor.getTempIdCard().getIdName() != null) {
+            visitorDto.setTempIdName(visitor.getTempIdCard().getIdName());
+        } else {
+            visitorDto.setTempIdName(null);
+        }
         return visitorDto;
     }
 
@@ -143,17 +145,11 @@ public class VisitorService {
 
     public ResponseEntity<String> editVisitor(VisitorDto visitorDto) {
         Long id = visitorDto.getId();
-        LocalDate issueDate = visitorDto.getIssueDate();
-        LocalTime inTime = visitorDto.getInTime();
-        Long tempId = visitorDto.getTempId();
+
         if (visitorDto.getId() == null) {
             return ResponseEntity.badRequest().body("Visitor ID is required.");
         }
 
-        if (id == null || issueDate == null || inTime == null) {
-            return ResponseEntity.badRequest()
-                    .body("IDCard-Number, Issue-Date, In-Time should not be left as empty.");
-        }
         Optional<Visitor> optionalVisitor = visitorRepository.findById(id);
         if (optionalVisitor.isPresent()) {
             Visitor visitor = optionalVisitor.get();
@@ -228,8 +224,13 @@ public class VisitorService {
             visitorDto.setOutTime(visitor.get().getOutTime());
             visitorDto.setReturnDate(visitor.get().getReturnDate());
             visitorDto.setIdIssuer(visitor.get().getIdIssuer());
-            visitorDto.setTempId(visitor.get().getTempIdCard().getId());
-            visitorDto.setTempIdName(visitor.get().getTempIdCard().getIdName());
+            if (visitor.get().getTempIdCard() != null) {
+                visitorDto.setTempId(visitor.get().getTempIdCard().getId());
+                visitorDto.setTempIdName(visitor.get().getTempIdCard().getIdName());
+            } else {
+                visitorDto.setTempId(null);
+                visitorDto.setTempIdName(null);
+            }
             String issuerSignBase64 = Base64.encodeBase64String(visitor.get().getVisitorSignature().getIssuerSign());
             String visitorSignBase64 = Base64.encodeBase64String(visitor.get().getVisitorSignature().getVisitorSign());
             String imgCaptureBase64 = Base64.encodeBase64String(visitor.get().getVisitorSignature().getImgCapture());
@@ -238,7 +239,6 @@ public class VisitorService {
                     .setVisitorSign(visitor.get().getVisitorSignature().getVisitorFileType() + "," + visitorSignBase64);
             visitorDto.setIssuerSign(visitor.get().getVisitorSignature().getIssuerFileType() + "," + issuerSignBase64);
             visitorDto.setImgCapture(visitor.get().getVisitorSignature().getImgFileType() + "," + imgCaptureBase64);
-//            visitorDto.setReturnStatus(visitor.get().getIdReturnStatus());
             visitorDto.setClockedOutStatus(visitor.get().getClockedOutStatus());
             visitorDto.setVisitEmployee(visitor.get().getEmpId() != null);
             visitorDto.setAccessories(
@@ -287,20 +287,65 @@ public class VisitorService {
         List<visitorExcelModel> visitorExcelModelList = new ArrayList<>();
         for (Visitor visitor : visitors) {
             visitorExcelModel visitorModel = new visitorExcelModel();
-             visitorModel.setDisplayId(ApplicationConstants.VIS_ID+visitor.getId());
-             visitorModel.setIssueDate(visitor.getIssueDate());
-             visitorModel.setVisitorName(visitor.getVisitorName());
-             visitorModel.setVisitorType(visitor.getVisitorType());
-             visitorModel.setContactNo(visitor.getContactNumber());
-             visitorModel.setIdIssuer(visitor.getIdIssuer());
-             visitorModel.setEmployeeVisited(visitor.getEmpName());
-             visitorModel.setClockoutDate(visitor.getReturnDate());
-             visitorModel.setInTime(visitor.getInTime());
-             visitorModel.setOutTime(visitor.getOutTime());
+            visitorModel.setDisplayId(ApplicationConstants.VIS_ID + visitor.getId());
+            visitorModel.setIssueDate(visitor.getIssueDate());
+            visitorModel.setVisitorName(visitor.getVisitorName());
+            visitorModel.setVisitorType(visitor.getVisitorType());
+            visitorModel.setContactNo(visitor.getContactNumber());
+            visitorModel.setIdIssuer(visitor.getIdIssuer());
+            visitorModel.setEmployeeVisited(visitor.getEmpName());
+            visitorModel.setClockoutDate(visitor.getReturnDate());
+            visitorModel.setInTime(visitor.getInTime());
+            visitorModel.setOutTime(visitor.getOutTime());
             visitorModel.setTempIdIssued(visitor.getTempIdCard().getIdName());
             visitorExcelModelList.add(visitorModel);
         }
         return visitorExcelModelList;
     }
 
+    @Transactional
+    public Page<VisitorDto> filterByIDorNameAndClockedOutStatus(String searchParam, Boolean clockedOutStatusParam,
+            Pageable pageable) {
+        Long visitorId = null;
+        Page<Visitor> visitorPage = null;
+        String searchString = searchParam.trim();
+        try {
+            visitorId = Long.parseLong(searchString);
+            String visitorIdPattern = "%" + visitorId + "%";
+            visitorPage = visitorRepository.findByPartialVisitorIdAndClockedOutStatus(visitorIdPattern,
+                    clockedOutStatusParam,
+                    pageable);
+        } catch (NumberFormatException e) {
+            visitorPage = visitorRepository.findByVisitorNameContainingIgnoreCaseAndClockedOutStatus(searchString,
+                    clockedOutStatusParam, pageable);
+        }
+        List<VisitorDto> visitorDtoList = visitorPage.getContent().stream().map(this::listDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(visitorDtoList, pageable, visitorPage.getTotalElements());
+    }
+
+    @Transactional
+    public Page<VisitorDto> filterByIDorName(String searchParam, Pageable pageable) {
+        Long visitorId = null;
+        Page<Visitor> visitorPage = null;
+        String searchString = searchParam.trim();
+        try {
+            visitorId = Long.parseLong(searchString);
+            String visitorIdPattern = "%" + visitorId + "%";
+            visitorPage = visitorRepository.findByPartialVisitorId(visitorIdPattern, pageable);
+        } catch (NumberFormatException e) {
+            visitorPage = visitorRepository.findByVisitorNameContainingIgnoreCase(searchString, pageable);
+        }
+        List<VisitorDto> visitorDtoList = visitorPage.getContent().stream().map(this::listDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(visitorDtoList, pageable, visitorPage.getTotalElements());
+    }
+
+    @Transactional
+    public Page<VisitorDto> filterByClockedOutStatus(Boolean clockedOutStatusParam, Pageable pageable) {
+        Page<Visitor> visitorPage = visitorRepository.findByClockedOutStatus(clockedOutStatusParam, pageable);
+        List<VisitorDto> visitorDtoList = visitorPage.getContent().stream().map(this::listDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(visitorDtoList, pageable, visitorPage.getTotalElements());
+    }
 }

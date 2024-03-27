@@ -1,11 +1,8 @@
 package com.example.FrontDesk_BE.controller;
 
-import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.dto.VisitorDto;
-import com.example.FrontDesk_BE.model.excelModel;
 import com.example.FrontDesk_BE.model.visitorExcelModel;
 import com.example.FrontDesk_BE.service.ExcelExportService;
-import com.example.FrontDesk_BE.service.IdCardService;
 import com.example.FrontDesk_BE.service.VisitorService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,9 +35,17 @@ public class VisitorController {
 
     @GetMapping("list")
     public Page<VisitorDto> getVisitorDtoList(@RequestParam(value = "searchParam", required = false) String searchParam,
-            @RequestParam(value = "returnStatus", required = false) Boolean returnStatus, Pageable pageable) {
-
-        return visitorService.getVisitorDtoList(pageable);
+            @RequestParam(value = "clockedOutStatus", required = false) Boolean clockedOutStatus, Pageable pageable) {
+        Boolean clockedOutStatusParam = clockedOutStatus != null && clockedOutStatus;
+        if (searchParam != null) {
+            return visitorService.filterByIDorNameAndClockedOutStatus(searchParam, clockedOutStatusParam, pageable);
+        } else if (searchParam != null && !searchParam.isEmpty()) {
+            return visitorService.filterByIDorName(searchParam, pageable);
+        } else if (clockedOutStatusParam != null) {
+            return visitorService.filterByClockedOutStatus(clockedOutStatusParam, pageable);
+        }
+        else
+            return visitorService.getVisitorDtoList(pageable);
 
     }
 
