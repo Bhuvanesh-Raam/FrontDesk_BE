@@ -146,44 +146,83 @@ public class VisitorService {
     public ResponseEntity<String> editVisitor(VisitorDto visitorDto) {
         Long id = visitorDto.getId();
 
-        if (visitorDto.getId() == null) {
+        if (id == null) {
             return ResponseEntity.badRequest().body("Visitor ID is required.");
         }
 
         Optional<Visitor> optionalVisitor = visitorRepository.findById(id);
         if (optionalVisitor.isPresent()) {
             Visitor visitor = optionalVisitor.get();
-            visitor.setVisitorName(visitorDto.getVisitorName());
-            visitor.setVisitorType(visitorDto.getVisitorType());
-            visitor.setIssueDate(visitorDto.getIssueDate());
-            visitor.setInTime(visitorDto.getInTime());
-            visitor.setContactNumber(visitorDto.getContactNumber());
+
+            if (visitorDto.getVisitorName() != null) {
+                visitor.setVisitorName(visitorDto.getVisitorName());
+            }
+
+            if (visitorDto.getVisitorType() != null) {
+                visitor.setVisitorType(visitorDto.getVisitorType());
+            }
+
+            if (visitorDto.getIssueDate() != null) {
+                visitor.setIssueDate(visitorDto.getIssueDate());
+            }
+
+            if (visitorDto.getInTime() != null) {
+                visitor.setInTime(visitorDto.getInTime());
+            }
+
+            if (visitorDto.getContactNumber() != null) {
+                visitor.setContactNumber(visitorDto.getContactNumber());
+            }
+
             if (visitorDto.getPurposeOfVisit() != null) {
                 visitor.setPurposeOfVisit(visitorDto.getPurposeOfVisit());
             }
-            if (visitorDto.getVisitEmployee() != null && visitorDto.getVisitEmployee()) {
-                visitor.setEmpName(visitorDto.getEmpName());
-                visitor.setEmpId(visitorDto.getEmpId());
+
+            if (visitorDto.getVisitEmployee() != null) {
+                boolean visitEmployee = visitorDto.getVisitEmployee();
+                if (visitEmployee) {
+                    if (visitorDto.getEmpName() != null && !visitorDto.getEmpName().equals(visitor.getEmpName())) {
+                        visitor.setEmpName(visitorDto.getEmpName());
+                    }
+                    if (visitorDto.getEmpId() != null && !visitorDto.getEmpId().equals(visitor.getEmpId())) {
+                        visitor.setEmpId(visitorDto.getEmpId());
+                    }
+                }
             }
+
             if (visitorDto.getTempIdIssued() != null && visitorDto.getTempIdIssued()) {
                 if (visitorDto.getTempId() != null) {
                     Optional<TempIDCard> tempOpt = tempIDCardRepository.findById(visitorDto.getTempId());
-                    if (tempOpt.isPresent() && !tempOpt.get().getInUse()) {
+                    if (tempOpt.isPresent()) {
                         TempIDCard tempIDCard = tempOpt.get();
-                        visitor.setTempIdCard(tempIDCard);
-                        tempIDCard.setInUse(true);
-                        tempIDCardRepository.save(tempIDCard);
+                        if (!tempIDCard.equals(visitor.getTempIdCard())) {
+                            if (!tempIDCard.getInUse()) {
+                                visitor.setTempIdCard(tempIDCard);
+                                tempIDCard.setInUse(true);
+                                tempIDCardRepository.save(tempIDCard);
+                            } else {
+                                return ResponseEntity.ok("Failure: Temp ID Card is already in use");
+                            }
+                        } else {
+                            // If the tempIdCard is the same, skip the update
+                            // but continue with the rest of the updates
+                        }
                     } else {
                         return ResponseEntity.ok("Failure: Temp ID Card not found");
                     }
                 } else {
                     return ResponseEntity.ok("Failure: Temp ID Card not provided/null");
                 }
-
+            } else if (visitorDto.getTempIdIssued() != null && !visitorDto.getTempIdIssued() && visitor.getTempIdCard() != null) {
+                visitor.getTempIdCard().setInUse(false);
+                visitor.setTempIdCard(null);
             }
-            visitor.setIdIssuer(visitorDto.getIdIssuer());
 
-            if (visitorDto.getHasAccessories() && visitorDto.getAccessories() != null) {
+            if (visitorDto.getIdIssuer() != null) {
+                visitor.setIdIssuer(visitorDto.getIdIssuer());
+            }
+
+            if (visitorDto.getHasAccessories() != null && visitorDto.getHasAccessories()) {
                 visitor.getAccessories().clear();
                 List<Accessory> accessories = visitorDto.getAccessories().stream()
                         .map(dto -> {
@@ -196,12 +235,14 @@ public class VisitorService {
                             return accessory;
                         }).collect(Collectors.toList());
                 visitor.setAccessories(accessories);
+            } else if (visitorDto.getHasAccessories() != null && !visitorDto.getHasAccessories()) {
+                visitor.getAccessories().clear();
             }
 
             visitorRepository.save(visitor);
-            return ResponseEntity.ok("V Success");
+            return ResponseEntity.ok("Visitor updated successfully");
         } else {
-            return ResponseEntity.ok("Visitor not found, check the ID number");
+            return ResponseEntity.ok("Visitor not found, please check the ID number");
         }
     }
 
