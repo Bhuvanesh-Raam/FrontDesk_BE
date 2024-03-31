@@ -213,7 +213,8 @@ public class VisitorService {
                 } else {
                     return ResponseEntity.ok("Failure: Temp ID Card not provided/null");
                 }
-            } else if (visitorDto.getTempIdIssued() != null && !visitorDto.getTempIdIssued() && visitor.getTempIdCard() != null) {
+            } else if (visitorDto.getTempIdIssued() != null && !visitorDto.getTempIdIssued()
+                    && visitor.getTempIdCard() != null) {
                 visitor.getTempIdCard().setInUse(false);
                 visitor.setTempIdCard(null);
             }
@@ -224,6 +225,8 @@ public class VisitorService {
 
             if (visitorDto.getHasAccessories() != null && visitorDto.getHasAccessories()) {
                 visitor.getAccessories().clear();
+
+                // Re-add accessories based on the incoming VisitorDto
                 List<Accessory> accessories = visitorDto.getAccessories().stream()
                         .map(dto -> {
                             Accessory accessory = new Accessory();
@@ -231,9 +234,12 @@ public class VisitorService {
                             accessory.setName(dto.getName());
                             accessory.setSerialNumber(dto.getSerialNo());
                             accessory.setQuantity(dto.getQuantity());
-                            accessory.setVisitor(visitor);
+                            accessory.setVisitor(visitor); // Set the visitor to maintain the relationship
                             return accessory;
                         }).collect(Collectors.toList());
+
+                // Save the new set of accessories
+                accessoriesRepository.saveAll(accessories);
                 visitor.setAccessories(accessories);
             } else if (visitorDto.getHasAccessories() != null && !visitorDto.getHasAccessories()) {
                 visitor.getAccessories().clear();
