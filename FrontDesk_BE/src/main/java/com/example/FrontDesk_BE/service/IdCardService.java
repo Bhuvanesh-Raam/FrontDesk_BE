@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.example.FrontDesk_BE.entity.IdCardSignature;
 import com.example.FrontDesk_BE.repository.IdCardRepository;
@@ -42,14 +43,21 @@ public class IdCardService {
         }
     }
 
-    public Page<IdCardDto> getIdCardDtoList(Pageable pageable) {
-        Sort.Order returnStatusOrder = Sort.Order.asc("returnStatus");
-        Sort.Order lastUpdatedOrder = Sort.Order.asc("lastUpdatedDate").nullsLast();
-        if (pageable.getSort().isUnsorted()) {
-            Sort customSort = Sort.by(returnStatusOrder, lastUpdatedOrder);
-            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), customSort);
-        }
-        return idCardRepository.findAll(pageable).map(this::listDto);
+    @Transactional
+    public Page<IdCardDto> getIdCardDtoList(String searchParam,Pageable pageable) {
+
+
+
+        Page<IDCard> returnStatusFalsePage = idCardRepository.findByReturnStatus(false, pageable);
+        Page<IDCard> returnStatusTruePage = idCardRepository.findByReturnStatus(true, pageable);
+
+        List<IdCardDto> idCardDtoList = Stream.concat(
+                returnStatusFalsePage.getContent().stream().map(this::listDto),
+                returnStatusTruePage.getContent().stream().map(this::listDto)
+        ).collect(Collectors.toList());
+
+        return new PageImpl<>(idCardDtoList, pageable,
+                returnStatusFalsePage.getTotalElements() + returnStatusTruePage.getTotalElements());
     }
 
     @Transactional

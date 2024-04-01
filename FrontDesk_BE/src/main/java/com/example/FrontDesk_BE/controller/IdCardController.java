@@ -11,6 +11,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +34,10 @@ public class IdCardController {
     private ExcelExportService excelExportService;
 
     @GetMapping("list")
-    public Page<IdCardDto> getIdCardDtoList( @RequestParam(value = "searchParam",required = false) String searchParam, @RequestParam(value = "returnStatus",required = false) Boolean returnStatus, Pageable pageable) {
+    public Page<IdCardDto> getIdCardDtoList(
+            @RequestParam(value = "searchParam",required = false) String searchParam,
+            @RequestParam(value = "returnStatus",required = false) Boolean returnStatus,
+            @PageableDefault(sort = {"returnStatus", "issueDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Boolean returnStatusParam=returnStatus!=null?Boolean.valueOf(returnStatus):null;
         if(searchParam!=null && returnStatusParam!=null)
         {
@@ -43,7 +48,7 @@ public class IdCardController {
             return idCardService.filterByReturnStatus(returnStatus,pageable);
         }
         else{
-            return idCardService.getIdCardDtoList(pageable);
+            return idCardService.getIdCardDtoList(searchParam,pageable);
         }
     }
 
