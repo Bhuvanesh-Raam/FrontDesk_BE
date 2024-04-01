@@ -46,8 +46,6 @@ public class IdCardService {
     @Transactional
     public Page<IdCardDto> getIdCardDtoList(String searchParam,Pageable pageable) {
 
-
-
         Page<IDCard> returnStatusFalsePage = idCardRepository.findByReturnStatus(false, pageable);
         Page<IDCard> returnStatusTruePage = idCardRepository.findByReturnStatus(true, pageable);
 

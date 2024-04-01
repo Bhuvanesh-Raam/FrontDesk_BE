@@ -18,6 +18,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +37,8 @@ public class VisitorController {
 
     @GetMapping("list")
     public Page<VisitorDto> getVisitorDtoList(@RequestParam(value = "searchParam", required = false) String searchParam,
-            @RequestParam(value = "clockedOutStatus", required = false) Boolean clockedOutStatus, Pageable pageable) {
+            @RequestParam(value = "clockedOutStatus", required = false) Boolean clockedOutStatus,
+            @PageableDefault(sort = {"clockedOutStatus", "issueDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Boolean clockedOutStatusParam=clockedOutStatus!=null?Boolean.valueOf(clockedOutStatus):null;
         System.out.println("searchParam: " + searchParam + " clockedOutStatus: " + clockedOutStatusParam);
         if (searchParam != null && !searchParam.isEmpty() && clockedOutStatusParam != null) {
@@ -45,7 +48,7 @@ public class VisitorController {
         } else if (clockedOutStatusParam != null) {
             return visitorService.filterByClockedOutStatus(clockedOutStatusParam, pageable);
         } else
-            return visitorService.getVisitorDtoList(pageable);
+            return visitorService.getVisitorDtoList(searchParam,pageable);
 
     }
 

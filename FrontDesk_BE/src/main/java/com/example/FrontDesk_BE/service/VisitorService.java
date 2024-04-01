@@ -2,6 +2,7 @@ package com.example.FrontDesk_BE.service;
 
 import com.example.FrontDesk_BE.constants.ApplicationConstants;
 import com.example.FrontDesk_BE.dto.AccessoryDto;
+import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.dto.VisitorDto;
 import com.example.FrontDesk_BE.entity.*;
 import com.example.FrontDesk_BE.model.visitorExcelModel;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +43,19 @@ public class VisitorService {
         return accessoryDto;
     }
 
-    public Page<VisitorDto> getVisitorDtoList(Pageable pageable) {
-        return visitorRepository.findAll(pageable).map(this::listDto);
+    @Transactional
+    public Page<VisitorDto> getVisitorDtoList(String searchParam, Pageable pageable) {
+
+        Page<Visitor> clockOutStatusFalsePage = visitorRepository.findByClockedOutStatus(false, pageable);
+        Page<Visitor> clockOutStatusTruePage = visitorRepository.findByClockedOutStatus(true, pageable);
+
+        List<VisitorDto> visitorDtoList = Stream.concat(
+                clockOutStatusFalsePage.getContent().stream().map(this::listDto),
+                clockOutStatusTruePage.getContent().stream().map(this::listDto)
+        ).collect(Collectors.toList());
+
+        return new PageImpl<>(visitorDtoList, pageable,
+                clockOutStatusFalsePage.getTotalElements() + clockOutStatusTruePage.getTotalElements());
     }
 
     private VisitorDto listDto(Visitor visitor) {
