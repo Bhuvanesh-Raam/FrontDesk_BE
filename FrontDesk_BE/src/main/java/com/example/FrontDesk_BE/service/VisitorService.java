@@ -1,10 +1,13 @@
 package com.example.FrontDesk_BE.service;
 
 import com.example.FrontDesk_BE.constants.ApplicationConstants;
+import com.example.FrontDesk_BE.constants.ErrorCode;
+import com.example.FrontDesk_BE.constants.ErrorMessages;
 import com.example.FrontDesk_BE.dto.AccessoryDto;
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.dto.VisitorDto;
 import com.example.FrontDesk_BE.entity.*;
+import com.example.FrontDesk_BE.exception.CustomException;
 import com.example.FrontDesk_BE.model.visitorExcelModel;
 import com.example.FrontDesk_BE.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -148,16 +151,16 @@ public class VisitorService {
             visitorSignatureRepository.save(visitorSignature);
 
             return ResponseEntity.ok("Success");
-        } catch (
-
-        Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
+            throw new CustomException(ErrorCode.VISITOR_INTERNAL_ERROR, ErrorMessages.VISITOR_INTERNAL_ERROR);
         }
     }
 
     @Transactional
     public ResponseEntity<String> editVisitor(VisitorDto visitorDto) {
+      try{
         Long id = visitorDto.getId();
 
         if (id == null) {
@@ -211,6 +214,7 @@ public class VisitorService {
                         TempIDCard tempIDCard = tempOpt.get();
                         if (!tempIDCard.equals(visitor.getTempIdCard())) {
                             if (!tempIDCard.getInUse()) {
+                                visitor.getTempIdCard().setInUse(false);
                                 visitor.setTempIdCard(tempIDCard);
                                 tempIDCard.setInUse(true);
                                 tempIDCardRepository.save(tempIDCard);
@@ -260,6 +264,12 @@ public class VisitorService {
             return ResponseEntity.ok("Visitor not found, please check the ID number");
         }
     }
+        catch(Exception e)
+        {
+            throw new CustomException(ErrorCode.VISITOR_EDIT_ERROR,ErrorMessages.VISITOR_EDIT_ERROR);
+        }
+    }
+
 
     public VisitorDto getVisitor(Long id) {
         Optional<Visitor> visitor = visitorRepository.findById(id);
@@ -307,33 +317,39 @@ public class VisitorService {
     }
 
     public ResponseEntity<String> clockoutVisitor(VisitorDto visitorDto) {
-        Long id = visitorDto.getId();
-        LocalTime outTime = visitorDto.getOutTime();
-        LocalDate returnDate = visitorDto.getReturnDate();
+        try {
+            Long id = visitorDto.getId();
+            LocalTime outTime = visitorDto.getOutTime();
+            LocalDate returnDate = visitorDto.getReturnDate();
 
-        if (id == null || outTime == null || returnDate == null) {
-            return ResponseEntity.badRequest().body("Out time and Return date must not be empty.");
-        }
-
-        Optional<Visitor> optionalVisitor = visitorRepository.findById(id);
-        if (optionalVisitor.isPresent()) {
-            Visitor visitor = optionalVisitor.get();
-            if (visitor.getTempIdCard() != null) {
-                visitor.setOutTime(outTime);
-                visitor.setReturnDate(returnDate);
-                TempIDCard tempIDCard = visitor.getTempIdCard();
-                tempIDCard.setInUse(false);
-                tempIDCardRepository.save(tempIDCard);
-            } else {
-                visitor.setOutTime(outTime);
-                visitor.setReturnDate(returnDate);
+            if (id == null || outTime == null || returnDate == null) {
+                return ResponseEntity.badRequest().body("Out time and Return date must not be empty.");
             }
-            visitor.setIdReturnStatus(true);
-            visitor.setClockedOutStatus(true);
-            visitorRepository.save(visitor);
-            return ResponseEntity.ok("Success");
-        } else {
-            return ResponseEntity.ok("Failure: Visitor not found");
+
+            Optional<Visitor> optionalVisitor = visitorRepository.findById(id);
+            if (optionalVisitor.isPresent()) {
+                Visitor visitor = optionalVisitor.get();
+                if (visitor.getTempIdCard() != null) {
+                    visitor.setOutTime(outTime);
+                    visitor.setReturnDate(returnDate);
+                    TempIDCard tempIDCard = visitor.getTempIdCard();
+                    tempIDCard.setInUse(false);
+                    tempIDCardRepository.save(tempIDCard);
+                } else {
+                    visitor.setOutTime(outTime);
+                    visitor.setReturnDate(returnDate);
+                }
+                visitor.setIdReturnStatus(true);
+                visitor.setClockedOutStatus(true);
+                visitorRepository.save(visitor);
+                return ResponseEntity.ok("Success");
+            } else {
+                return ResponseEntity.ok("Failure: Visitor not found");
+            }
+        }
+        catch (Exception e)
+        {
+            throw new CustomException(ErrorCode.VISITOR_EDIT_ERROR,ErrorMessages.VISITOR_EDIT_ERROR);
         }
     }
 

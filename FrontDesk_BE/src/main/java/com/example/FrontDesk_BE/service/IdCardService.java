@@ -1,9 +1,12 @@
 package com.example.FrontDesk_BE.service;
 
 import com.example.FrontDesk_BE.constants.ApplicationConstants;
+import com.example.FrontDesk_BE.constants.ErrorCode;
+import com.example.FrontDesk_BE.constants.ErrorMessages;
 import com.example.FrontDesk_BE.dto.IdCardDto;
 import com.example.FrontDesk_BE.entity.IDCard;
 import com.example.FrontDesk_BE.entity.TempIDCard;
+import com.example.FrontDesk_BE.exception.CustomException;
 import com.example.FrontDesk_BE.model.excelModel;
 import com.example.FrontDesk_BE.repository.IdCardSignatureRepository;
 import org.springframework.data.domain.*;
@@ -190,11 +193,14 @@ public class IdCardService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failure: Internal Server Error");
+            throw new CustomException(ErrorCode.ID_CARD_INTERNAL_ERROR, ErrorMessages.ID_CARD_INTERNAL_ERROR);
         }
     }
 
     public ResponseEntity<String> returnIdCard(IdCardDto idCardDto) {
+      try
+      {
         Long id = idCardDto.getId();
         LocalDate returnDate = idCardDto.getReturnDate();
         LocalTime outTime = idCardDto.getOutTime();
@@ -214,58 +220,69 @@ public class IdCardService {
             idCardRepository.save(idCard);
 
             return ResponseEntity.ok("Success");
-        } else {
-            return ResponseEntity.ok("Failure");
         }
+        else {
+            return ResponseEntity.ok("Failure: ID Card not found");
+        }
+      }
+          catch(Exception e){
+              throw new CustomException(ErrorCode.ID_CARD_RETURN_ERROR,ErrorMessages.ID_CARD_RETURN_ERROR);
+          }
     }
 
     public ResponseEntity<String> editIdCard(IdCardDto idCardDto) {
-        Long id = idCardDto.getId();
-        if (id == null) {
-            return ResponseEntity.badRequest().body("IDCard-Number should not be left as empty.");
-        }
-        Optional<IDCard> optIdCard = idCardRepository.findById(id);
-        if (!optIdCard.isPresent()) {
-            return ResponseEntity.ok("IDCard not found, check the ID number");
-        }
-        IDCard idCard = optIdCard.get();
-        boolean isUpdated = false;
+     try {
+         Long id = idCardDto.getId();
+         if (id == null) {
+             return ResponseEntity.badRequest().body("IDCard-Number should not be left as empty.");
+         }
+         Optional<IDCard> optIdCard = idCardRepository.findById(id);
+         if (!optIdCard.isPresent()) {
+             return ResponseEntity.ok("IDCard not found, check the ID number");
+         }
+         IDCard idCard = optIdCard.get();
+         boolean isUpdated = false;
 
-        // Check and update issueDate if it's not null
-        if (idCardDto.getIssueDate() != null) {
-            idCard.setIssueDate(idCardDto.getIssueDate());
-            isUpdated = true;
-        }
+         // Check and update issueDate if it's not null
+         if (idCardDto.getIssueDate() != null) {
+             idCard.setIssueDate(idCardDto.getIssueDate());
+             isUpdated = true;
+         }
 
-        // Check and update inTime if it's not null
-        if (idCardDto.getInTime() != null) {
-            idCard.setInTime(idCardDto.getInTime());
-            isUpdated = true;
-        }
+         // Check and update inTime if it's not null
+         if (idCardDto.getInTime() != null) {
+             idCard.setInTime(idCardDto.getInTime());
+             isUpdated = true;
+         }
 
-        // Check and update TempId if it's not null
-        if (idCardDto.getTempId() != null) {
-            Optional<TempIDCard> temp = tempIDCardRepository.findById(idCardDto.getTempId());
-            if (!temp.isPresent()) {
-                return ResponseEntity.ok("Failure Temp Id not found");
-            }
-            TempIDCard tempCard = temp.get();
-            // Set the previous TempIDCard inUse to false if it's different
-            if (!idCard.getTempIdCard().getId().equals(tempCard.getId())) {
-                idCard.getTempIdCard().setInUse(false);
-                tempCard.setInUse(true);
-                tempIDCardRepository.save(idCard.getTempIdCard());
-            }
-            idCard.setTempIdCard(tempCard);
-            isUpdated = true;
-        }
+         // Check and update TempId if it's not null
+         if (idCardDto.getTempId() != null) {
+             Optional<TempIDCard> temp = tempIDCardRepository.findById(idCardDto.getTempId());
+             if (!temp.isPresent()) {
+                 return ResponseEntity.ok("Failure Temp Id not found");
+             }
+             TempIDCard tempCard = temp.get();
+             // Set the previous TempIDCard inUse to false if it's different
+             if (!idCard.getTempIdCard().getId().equals(tempCard.getId())) {
+                 idCard.getTempIdCard().setInUse(false);
+                 tempCard.setInUse(true);
+                 tempIDCardRepository.save(idCard.getTempIdCard());
+             }
+             idCard.setTempIdCard(tempCard);
+             isUpdated = true;
+         }
 
-        if (isUpdated) {
-            idCardRepository.save(idCard);
-            return ResponseEntity.ok("Success");
-        } else {
-            return ResponseEntity.ok("No changes detected to update.");
-        }
+         if (isUpdated) {
+             idCardRepository.save(idCard);
+             return ResponseEntity.ok("Success");
+         } else {
+             return ResponseEntity.ok("No changes detected to update.");
+         }
+     }
+     catch (Exception e)
+     {
+         throw new CustomException(ErrorCode.ID_CARD_EDIT_ERROR,ErrorMessages.ID_CARD_EDIT_ERROR);
+     }
     }
 
     @Transactional
