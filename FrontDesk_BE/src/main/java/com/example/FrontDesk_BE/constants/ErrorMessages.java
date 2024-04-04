@@ -16,4 +16,6 @@ public class ErrorMessages {
     public static final String VISITOR_INTERNAL_ERROR="Unexpected Error Occurred while saving Visitor, Couldn't save!";
     public static final String VISITOR_CLOCK_OUT_ERROR="Unexpected Error Occurred while clocking out visitor, Couldn't clockOut!";
     public static final String VISITOR_EDIT_ERROR="Unexpected Error Occurred while saving the Edited changes, Couldn't save the edited changes!";
+    public static final String LOGIN_ERROR="Unexpected Error Occurred while logging in, please try again! ";
+    public static final String UNAUTHORIZED_LOGIN="Unauthorized Login access!";
 }

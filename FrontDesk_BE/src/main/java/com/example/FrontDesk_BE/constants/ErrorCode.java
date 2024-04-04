@@ -12,5 +12,9 @@ public class ErrorCode {
     public static final String VISITOR_CLOCK_OUT_ERROR="8002";
     public static final String VISITOR_EDIT_ERROR="8001";
 
+    public static final String LOGIN_ERROR="9001";
+
+    public static final String UNAUTHORIZED_LOGIN="401";
+
 
 }
