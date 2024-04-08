@@ -9,6 +9,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: https://sts.windows.net/09d8c2b8-850c-4d96-a486-cbc8dfe86610/
+
 
 zoho:
   clientId: 1000.L6K1UKD41XF9N28QKFX3O8UA0KGWFN
@@ -17,3 +23,12 @@ zoho:
 
   caching:
     zohoOauthTokenTTL: 3400000
+
+azure:
+  active-directory:
+    client-id: a9437014-a167-43fb-8be0-c00bc7ff2a29
+    client-secret: _tJ8Q~x.fIfaoUwwx.zS5h4QbMd.MFqvOSOtqaOK
+    tenant-id: 09d8c2b8-850c-4d96-a486-cbc8dfe86610
+    app-id-uri: api://a9437014-a167-43fb-8be0-c00bc7ff2a29
+
+
