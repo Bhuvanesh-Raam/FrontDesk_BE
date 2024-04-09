@@ -36,7 +36,8 @@ public class VisitorController {
     private ExcelExportService excelExportService;
 
     @GetMapping("list")
-    public Page<VisitorDto> getVisitorDtoList(@RequestParam(value = "searchParam", required = false) String searchParam,
+    public Page<VisitorDto> getVisitorDtoList(
+            @RequestParam(value = "searchParam", required = false) String searchParam,
             @RequestParam(value = "clockedOutStatus", required = false) Boolean clockedOutStatus,
             @PageableDefault(sort = {"clockedOutStatus", "issueDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Boolean clockedOutStatusParam=clockedOutStatus!=null?Boolean.valueOf(clockedOutStatus):null;
@@ -78,7 +79,7 @@ public class VisitorController {
     public VisitorDto getVisitorDtoWithID(@PathVariable Long id) {
         return visitorService.getVisitor(id);
     }
-
+    @CrossOrigin(exposedHeaders = "Content-Disposition")
     @GetMapping("exportdata")
     public void downloadExcel(@RequestParam("startDate") LocalDate startDate,
             @RequestParam("endDate") LocalDate endDate, HttpServletResponse response) {

@@ -379,18 +379,21 @@ public class VisitorService {
     @Transactional
     public Page<VisitorDto> filterByIDorNameAndClockedOutStatus(String searchParam, Boolean clockedOutStatusParam,
             Pageable pageable) {
-        Long visitorId = null;
+        Long empId = null;
         Page<Visitor> visitorPage = null;
         String searchString = searchParam.trim();
         try {
-            visitorId = Long.parseLong(searchString);
-            String visitorIdPattern = "%" + visitorId + "%";
-            visitorPage = visitorRepository.findByPartialVisitorIdAndClockedOutStatus(visitorIdPattern,
+            empId = Long.parseLong(searchString);
+            String empIdPattern = "%" + empId + "%";
+            visitorPage = visitorRepository.findByPartialEmpIdAndClockedOutStatus(empIdPattern,
                     clockedOutStatusParam,
                     pageable);
         } catch (NumberFormatException e) {
             visitorPage = visitorRepository.findByVisitorNameContainingIgnoreCaseAndClockedOutStatus(searchString,
                     clockedOutStatusParam, pageable);
+            if(visitorPage.isEmpty()) {
+                visitorPage = visitorRepository.findByEmpNameContainingIgnoreCaseAndClockedOutStatus(searchString,clockedOutStatusParam , pageable);
+            }
         }
         List<VisitorDto> visitorDtoList = visitorPage.getContent().stream().map(this::listDto)
                 .collect(Collectors.toList());
@@ -399,15 +402,18 @@ public class VisitorService {
 
     @Transactional
     public Page<VisitorDto> filterByIDorName(String searchParam, Pageable pageable) {
-        Long visitorId = null;
+        Long empId = null;
         Page<Visitor> visitorPage = null;
         String searchString = searchParam.trim();
         try {
-            visitorId = Long.parseLong(searchString);
-            String visitorIdPattern = "%" + visitorId + "%";
-            visitorPage = visitorRepository.findByPartialVisitorId(visitorIdPattern, pageable);
+            empId = Long.parseLong(searchString);
+            String empIdPattern = "%" + empId + "%";
+            visitorPage = visitorRepository.findByPartialEmpId(empIdPattern, pageable);
         } catch (NumberFormatException e) {
             visitorPage = visitorRepository.findByVisitorNameContainingIgnoreCase(searchString, pageable);
+            if(visitorPage.isEmpty()) {
+                visitorPage = visitorRepository.findByEmpNameContainingIgnoreCase(searchString, pageable);
+            }
         }
         List<VisitorDto> visitorDtoList = visitorPage.getContent().stream().map(this::listDto)
                 .collect(Collectors.toList());

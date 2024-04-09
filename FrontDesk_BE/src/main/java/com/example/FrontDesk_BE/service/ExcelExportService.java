@@ -19,7 +19,7 @@ public class ExcelExportService {
     public Workbook exportToExcel(List<excelModel> data, String filePath){
         Workbook workbook=new XSSFWorkbook();
         try{
-            Sheet sheet=workbook.createSheet("Data");
+            Sheet sheet=workbook.createSheet("IDCard Report Data");
             CellStyle headerStyle = workbook.createCellStyle();
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
             XSSFFont font = ((XSSFWorkbook) workbook).createFont();
@@ -32,7 +32,7 @@ public class ExcelExportService {
 
 
             Row headerRow=sheet.createRow(0);
-            String headers[]={"IdCard-ID","Issue-Date","Receiver-Name","Issuer-Name","Return-Date","In-Time","Out-Time","TempID-Name"};
+            String headers[]={"IdCard-ID","Issue-Date","Receiver-Name","Issuer-Name","Return-Date","Issue-Time","Return-Time","TempID-Name"};
             for(int i=0;i<headers.length;i++)
             {
                 Cell cell=headerRow.createCell(i);
@@ -90,7 +90,7 @@ public class ExcelExportService {
      public Workbook exportVisitorToExcel(List<visitorExcelModel> data, String filePath){
          Workbook workbook=new XSSFWorkbook();
          try{
-             Sheet sheet=workbook.createSheet("Data");
+             Sheet sheet=workbook.createSheet("Visitor Report Data");
              CellStyle headerStyle = workbook.createCellStyle();
              headerStyle.setAlignment(HorizontalAlignment.CENTER);
              XSSFFont font = ((XSSFWorkbook) workbook).createFont();
@@ -109,7 +109,7 @@ public class ExcelExportService {
                  Cell cell=headerRow.createCell(i);
                  cell.setCellValue(headers[i]);
                  cell.setCellStyle(headerStyle);
-                 sheet.setColumnWidth(i,4750);
+                 sheet.setColumnWidth(i,5000);
              }
              int rowNum=1;
              for (visitorExcelModel model : data) {

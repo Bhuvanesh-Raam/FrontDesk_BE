@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,5 +76,8 @@ public class Visitor {
 
     @OneToMany(mappedBy = "visitor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Accessory> accessories = new ArrayList<>();
+
+    @Column(name="dateWithTimezone")
+    private ZonedDateTime zonedIssueDate;
 
 }

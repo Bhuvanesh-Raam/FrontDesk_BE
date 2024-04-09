@@ -62,7 +62,7 @@ public class IdCardService {
     }
 
     @Transactional
-    public Page<IdCardDto> filterByIDorNameAndReturnStatus(String searchParam, Boolean returnStatus,
+    public Page<IdCardDto>  filterByIDorNameAndReturnStatus(String searchParam, Boolean returnStatus,
             Pageable pageable) {
         Long empId = null;
         Page<IDCard> idCardPage = null;
