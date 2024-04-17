@@ -22,13 +22,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+
 /* @Validated */
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @RequestMapping("api/visitorAccess/")
+@PreAuthorize("hasRole('Visitor.Editor')")
 public class VisitorController {
     @Autowired
     private VisitorService visitorService;
@@ -36,6 +39,7 @@ public class VisitorController {
     private ExcelExportService excelExportService;
 
     @GetMapping("list")
+//    @PreAuthorize("hasRole('Visitor.Editor')")
     public Page<VisitorDto> getVisitorDtoList(
             @RequestParam(value = "searchParam", required = false) String searchParam,
             @RequestParam(value = "clockedOutStatus", required = false) Boolean clockedOutStatus,
@@ -54,7 +58,9 @@ public class VisitorController {
     }
 
     @PostMapping("save")
+    @PreAuthorize("hasRole('Visitor.Editor')")
     public ResponseEntity<String> saveVisitor(@Valid @RequestBody VisitorDto visitorDto) {
+
         try {
             ResponseEntity<String> saved = visitorService.saveVisitor(visitorDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(saved));
@@ -66,16 +72,19 @@ public class VisitorController {
     }
 
     @PostMapping("edit")
+    @PreAuthorize("hasRole('Visitor.Editor')")
     public ResponseEntity<String> editVisitor(@RequestBody VisitorDto visitorDto) {
         return visitorService.editVisitor(visitorDto);
     }
 
     @PutMapping("clockOut")
+    @PreAuthorize("hasRole('Visitor.Editor')")
     public ResponseEntity<String> clockOutVisitor(@RequestBody VisitorDto visitorDto) {
         return visitorService.clockoutVisitor(visitorDto);
     }
 
     @GetMapping("search/{id}")
+    @PreAuthorize("hasRole('Visitor.Editor')")
     public VisitorDto getVisitorDtoWithID(@PathVariable Long id) {
         return visitorService.getVisitor(id);
     }

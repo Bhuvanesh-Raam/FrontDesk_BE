@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class IdCardController {
     private ExcelExportService excelExportService;
 
     @GetMapping("list")
+    @PreAuthorize("hasAnyRole('IDCard.Editor','Visitor.Editor')")
     public Page<IdCardDto> getIdCardDtoList(
             @RequestParam(value = "searchParam",required = false) String searchParam,
             @RequestParam(value = "returnStatus",required = false) Boolean returnStatus,
@@ -53,6 +55,7 @@ public class IdCardController {
     }
 
     @GetMapping("search/{id}")
+    @PreAuthorize("hasRole('IDCard.Editor')")
     public IdCardDto getIdCardDtoWithID(@PathVariable Long id)
     {
         return idCardService.getIdCard(id);
@@ -65,6 +68,7 @@ public class IdCardController {
     }
 
     @GetMapping("exportdata")
+    @PreAuthorize("hasRole('IDCard.Editor')")
     public void downloadExcel(@RequestParam("startDate") LocalDate startDate, @RequestParam("endDate")LocalDate endDate, HttpServletResponse response)
     {
         DateTimeFormatter formatter=DateTimeFormatter.ofPattern("dd-MMM-yy");
@@ -86,17 +90,20 @@ public class IdCardController {
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasRole('IDCard.Editor')")
     public ResponseEntity<String> saveForgotId( @Valid @RequestBody IdCardDto idCardDto){
         return idCardService.saveIdCard(idCardDto);
     }
 
     @PostMapping("edit")
+    @PreAuthorize("hasRole('IDCard.Editor')")
     public ResponseEntity<String> editIdCard(@RequestBody IdCardDto idCardDto)
     {
         return idCardService.editIdCard(idCardDto);
     }
 
     @PutMapping("return")
+    @PreAuthorize("hasRole('IDCard.Editor')")
     public ResponseEntity<String> updateIdCard(@RequestBody IdCardDto idCardDto)
     {
         return idCardService.returnIdCard(idCardDto);
