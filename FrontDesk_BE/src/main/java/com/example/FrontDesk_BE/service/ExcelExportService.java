@@ -119,7 +119,7 @@ public class ExcelExportService {
                  String clockoutDateString = model.getClockoutDate() != null ? model.getClockoutDate().format(dateFormatter) : "Not returned!";
                  String inTimeString = model.getInTime().format(timeFormatter);
                  String outTimeString = model.getOutTime() != null ? model.getOutTime().format(timeFormatter) : "Not Returned!";
-
+                 String tempId=model.getTempIdIssued()!=null? model.getTempIdIssued() : "No Temp Id Provided!";
                  Row row= sheet.createRow(rowNum++);
                  Cell cell0 = row.createCell(0);
                  cell0.setCellValue(model.getDisplayId());
@@ -143,7 +143,7 @@ public class ExcelExportService {
                  cell6.setCellValue(model.getEmployeeVisited());
                  cell6.setCellStyle(dataStyle);
                  Cell cell7 = row.createCell(7);
-                 cell7.setCellValue(model.getTempIdIssued());
+                 cell7.setCellValue(tempId);
                  cell7.setCellStyle(dataStyle);
                  Cell cell8 = row.createCell(8);
                  cell8.setCellValue(clockoutDateString);

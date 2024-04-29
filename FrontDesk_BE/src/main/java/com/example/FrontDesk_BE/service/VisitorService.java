@@ -370,7 +370,7 @@ public class VisitorService {
             visitorModel.setClockoutDate(visitor.getReturnDate());
             visitorModel.setInTime(visitor.getInTime());
             visitorModel.setOutTime(visitor.getOutTime());
-            visitorModel.setTempIdIssued(visitor.getTempIdCard().getIdName());
+            visitorModel.setTempIdIssued(visitor.getTempIdCard() != null && visitor.getTempIdCard().getIdName() != null ? visitor.getTempIdCard().getIdName() : "No TEMP-ID provided!");
             visitorExcelModelList.add(visitorModel);
         }
         return visitorExcelModelList;
